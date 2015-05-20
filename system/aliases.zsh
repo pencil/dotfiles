@@ -1,13 +1,37 @@
 # general
-alias ls='ls -Gla'
-alias ll='ls -hl'
-function ff { find . -iname "*$1*" }
-alias fh='history | grep'
+alias ls="ls -Gp"
+alias nssh='ssh -o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null'
+alias nscp='scp -o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null'
+alias flush-dns='sudo discoveryutil udnsflushcaches'
 
-# ruby and development
+# development
+alias git-delete-merged-branches='git branch --merged | grep -v "\*" | grep -v master | xargs -n 1 git branch -d'
+alias jsc='/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Resources/jsc'
+alias ijs='jsc'
+alias iphp='php -a'
 alias rc='rails console'
 alias qq='touch tmp/restart.txt'
 alias b='bundle'
 
-alias vim='mvim -v --servername VIM'
-alias vimed='cd ~/.dotfiles; vim ~/.vimrc ~/.*.vim'
+# ssh wrapper that rename current tmux window to the hostname of the
+# remote host.
+ssh() {
+  # Do nothing if we are not inside tmux or ssh is called without arguments
+  if [[ $# == 0 || -z $TMUX ]]; then
+    command ssh $@
+    return
+  fi
+  # The hostname is the last parameter (i.e. ${(P)#})
+  local remote="${@: -1}"
+  local old_name="$(tmux display-message -p '#W')"
+  local renamed=0
+  # Save the current name
+  if [[ $remote != -* ]]; then
+    renamed=1
+    tmux rename-window $remote
+  fi
+  command ssh $@
+  if [[ $renamed == 1 ]]; then
+    tmux rename-window "$old_name"
+  fi
+}

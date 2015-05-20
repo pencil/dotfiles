@@ -1,0 +1,35 @@
+#  List the possible completions when Tab is pressed:
+set show-all-if-ambiguous on
+
+# Make Meta+S cycle through the list: (see previous)
+# "\M-s": menu-complete
+
+# Complete things that have been typed in the wrong case:
+set completion-ignore-case on
+
+# When listing possible file completions, put / after directory names and * after programs:
+set visible-stats on
+
+# Incremental searching with Up and Down
+# Old behaviour still available with Ctrl+P and Ctrl+N
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+# If that (see previous) prevents Left and Right from working, fix them like this:
+#"\e[C": forward-char
+#"\e[D": backward-char
+
+# control + right arrow (Mac OS X 10.5.5)
+"\e[5C": forward-word
+# control + right arrow (Mac OS X 10.5.5)
+"\e[5D": backward-word
+
+# A magic space inserts a space character as normal
+# And also performs history expansion in the line
+# See what you type before you commit to it
+# --> Press Space before Enter if necessary
+$if Bash
+  Space: magic-space
+$endif
+
+# Meta+O can be made to load the previous command and position the cursor for typing an option
+# "\M-o": "\C-p\C-a\M-f "

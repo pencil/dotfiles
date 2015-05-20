@@ -31,3 +31,5 @@
 
 # CoffeeScript
 --type-set=coffee:ext:coffee
+
+--ignore-dir=tmp

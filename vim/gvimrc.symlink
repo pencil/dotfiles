@@ -1,6 +1,0 @@
-set guifont=Sauce\ Code\ Powerline\ Regular:h14 
-set antialias                     " MacVim: smooth fonts.
-
-set guioptions-=T                 " Hide toolbar.
-set guioptions-=r                 " Don't show right scrollbar
-set guioptions-=L                 " Don't show left scrollbar

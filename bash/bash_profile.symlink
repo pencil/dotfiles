@@ -1,0 +1,121 @@
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+
+export HISTSIZE=3000
+# ignore duplicate
+export HISTCONTROL=ignoreboth
+export HISTTIMEFORMAT="%F %T "
+
+source /opt/boxen/env.sh
+
+if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then
+  . $(brew --prefix)/share/bash-completion/bash_completion
+fi
+
+export ACLOCAL_FLAGS="-I/usr/local/share/aclocal $ACLOCAL_FLAGS"
+
+#JAVA_HOME=/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home/
+export JAVA_HOME="$(/usr/libexec/java_home)"
+
+# EC2 API Tools
+#EC2_PRIVATE_KEY="$(/bin/ls "$HOME"/.ec2/pk-*.pem | /usr/bin/head -1)"
+#EC2_CERT="$(/bin/ls "$HOME"/.ec2/cert-*.pem | /usr/bin/head -1)"
+#EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
+
+export TM_SUPPORT_PATH='/Applications/TextMate.app/Contents/SharedSupport'
+
+#SVN_EDITOR="$HOME/bin/mate -w"
+#EDITOR="$HOME/bin/mate -w"
+export EDITOR="vim"
+export SVN_EDITOR=$EDITOR
+
+export CLICOLOR=1
+export GREP_OPTIONS='--color=auto --exclude-dir=.cvs --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn'
+
+export BOXEN_HOME='/opt/boxen'
+export CFLAGS="-I$BOXEN_HOME/homebrew/include"
+export CPPFLAGS="-I$BOXEN_HOME/homebrew/include"
+export CPLUS_INCLUDE_PATH="$BOXEN_HOME/homebrew/include"
+export LIBRARY_PATH="$BOXEN_HOME/homebrew/lib"
+
+# spring is the perfect example of tackling the symptoms instead of fixing the
+# actual problem. Caching the Rails environment causes problems such as missing
+# environment variables (dotenv) and config file changes not getting picked up.
+export DISABLE_SPRING=1 # SPRING – NOT EVEN ONCE
+
+alias ls="ls -Gp"
+alias git-svn="git svn"
+alias tree="tree -C"
+alias nils-pg-start="pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start"
+alias nils-pg-stop="pg_ctl -D /usr/local/var/postgres stop -s -m fast"
+alias nssh='ssh -o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null'
+alias nscp='scp -o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null'
+alias jsc='/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Resources/jsc'
+alias ijs='jsc'
+alias start-mysql-server='sudo /usr/local/mysql/support-files/mysql.server start && sudo -k'
+alias xkcd-password='~/Dropbox/Documents/Scripts/XKCD-password-generator/xkcd-password.py -w ~/Dropbox/Documents/Scripts/XKCD-password-generator/common-words.txt'
+alias be='bundle exec'
+alias ..='cd ..'
+alias flush-dns='sudo discoveryutil udnsflushcaches'
+alias iphp='php -a'
+alias qq='touch tmp/restart.txt'
+alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test100.zip $*'
+alias texpad='open -a Texpad $*'
+alias postgres-start='postgres -D /usr/local/var/postgres'
+alias git-delete-merged-branches='git branch --merged | grep -v "\*" | grep -v master | xargs -n 1 git branch -d'
+alias nvim='VIMRUNTIME=/usr/local/share/vim/vim74/ nvim'
+#alias vim='nvim'
+
+ff() {
+  find . -iname "*$1*"
+}
+
+vc_ps1() {
+	VCPROMPT_FORMAT="(%b%u%m)" VCPROMPT_FORMAT_SVN="(%n:@%r%u%m)" vcprompt 2>/dev/null
+}
+settitle() {
+  printf "\033k$1\033\\"
+}
+
+#PS1='\[\033[01;31m\]\u@\h\[\033[00m\] \[\033[01;36m\]\W\[\033[00m\]\[\033[01;32m\]$(vc_ps1)\[\033[00m\]\[\033[01;34m\]\$\[\033[00m\] $(settitle $(basename \W))'
+#PS1='\[\e]1; \W\a\e]2;\u@\h\a\]'"$PS1"
+#PS1="\[\e]0;\u@\h\a\]$PS1"
+export PS1='\[\033[01;31m\]\u@\h\[\033[00m\] \[\033[01;36m\]\W\[\033[00m\]\[\033[01;32m\]$(vc_ps1)\[\033[00m\]\[\033[01;34m\]\$\[\033[00m\] '
+
+#$ curl -sL https://github.com/djl/vcprompt/raw/master/bin/vcprompt > ~/bin/vcprompt
+#$ chmod 755 ~/bin/vcprompt
+
+# use vim as manpager
+#export MANPAGER='col -bx | vim -c ":set ft=man nonu nolist" -R -'
+
+run_notify () { "$@" && terminal-notifier -message "$( echo $@ ) returned $?" -title "Command $HISTCMD Completed" >/dev/null ; }
+
+# ssh wrapper that rename current tmux window to the hostname of the
+# remote host.
+ssh() {
+  # Do nothing if we are not inside tmux or ssh is called without arguments
+  if [[ $# == 0 || -z $TMUX ]]; then
+    command ssh $@
+    return
+  fi
+  # The hostname is the last parameter (i.e. ${(P)#})
+  local remote="${@: -1}"
+  local old_name="$(tmux display-message -p '#W')"
+  local renamed=0
+  # Save the current name
+  if [[ $remote != -* ]]; then
+    renamed=1
+    tmux rename-window $remote
+  fi
+  command ssh $@
+  if [[ $renamed == 1 ]]; then
+    tmux rename-window "$old_name"
+  fi
+}
+
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+shopt -s globstar

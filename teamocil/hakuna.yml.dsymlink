@@ -1,0 +1,22 @@
+windows:
+  - name: rabbit
+    panes:
+      - rabbitmq-server
+  - name: sso
+    root: ~/projects/wearepistachio/sso
+    layout: main-horizontal
+    panes:
+      - git status
+      - foreman start
+  - name: hakuna
+    root: ~/projects/wearepistachio/hakuna
+    layout: main-horizontal
+    panes:
+      - git status
+      - foreman start
+  - name: queenbee
+    root: ~/projects/wearepistachio/queenbee
+    layout: main-horizontal
+    panes:
+      - git status
+      - foreman start
