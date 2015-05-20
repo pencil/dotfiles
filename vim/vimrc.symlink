@@ -6,53 +6,48 @@ set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
 """""""""""""""""""""""""""""""""""""
-" BUNDLES
+" PLUGINS
 """""""""""""""""""""""""""""""""""""
 
-Bundle 'gmarik/vundle'
+Plugin 'gmarik/vundle'
 
 "" Languages
-Bundle 'vim-ruby/vim-ruby'
-Bundle 'pangloss/vim-javascript'
-"Bundle 'tpope/vim-markdown'
-Bundle 'pencil/vim-markdown'
-"Bundle 'tpope/vim-rails'
-Bundle 'kchmck/vim-coffee-script'
-Bundle 'groenewege/vim-less'
-Bundle 'rodjek/vim-puppet'
-Bundle 'tfnico/vim-gradle'
-Bundle 'cocoa.vim'
-"Bundle 'Rip-Rip/clang_complete'
+Plugin 'cocoa.vim' " Cocoa syntax highlighting, code completion, documentation lookup, etc.
+Plugin 'groenewege/vim-less' " Less CSS shenanigans
+Plugin 'kchmck/vim-coffee-script' " CoffeeScript syntax, indentation, compiling, etc.
+Plugin 'pangloss/vim-javascript' " Improved JavaScript syntax support, indentation, etc.
+Plugin 'plasticboy/vim-markdown' " DAE Markdown?
+Plugin 'rodjek/vim-puppet' " Pöppet
+Plugin 'vim-ruby/vim-ruby' " Use an up-to-date version of the Ruby plugin instead of the built in one
 
 "" Tools
-Bundle 'bling/vim-airline'
-Bundle 'tpope/vim-fugitive'
-Bundle 'kien/ctrlp.vim'
-Bundle 'scrooloose/syntastic'
-Bundle 'trailing-whitespace'
-Bundle 'sjl/gundo.vim'
-Bundle 'docunext/closetag.vim'
-Bundle 'tpope/vim-surround'
-Bundle 'Raimondi/delimitMate'
-"Bundle 'tpope/vim-endwise'
-Bundle 'christoomey/vim-tmux-navigator'
-Bundle 'mileszs/ack.vim'
-Bundle 'rking/ag.vim'
-Bundle 'scrooloose/nerdtree'
-"Bundle 'xolox/vim-easytags'
-Bundle 'xolox/vim-misc'
-Bundle 'godlygeek/tabular'
-Bundle 'tpope/vim-repeat'
-Bundle 'airblade/vim-gitgutter'
-"Bundle 'Yggdroot/indentLine'
-Bundle 'nacitar/a.vim'
+Plugin 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
+Plugin 'godlygeek/tabular' " aling my code plox
+Plugin 'rking/ag.vim' " RIP ack
+Plugin 'scrooloose/syntastic' " check code syntax
+Plugin 'sjl/gundo.vim' " visualizes the undo tree; I use this every day!
+Plugin 'tpope/vim-commentary' " comment code out the fast way
+Plugin 'tpope/vim-dispatch' " run stuff async
+Plugin 'tpope/vim-fugitive' " Git magic
+Plugin 'tpope/vim-repeat' " enable repeating supported plugin maps with .
+Plugin 'tpope/vim-surround' " tool to change and add surroundings in pair
 
-"" Theme
-Bundle 'chriskempson/vim-tomorrow-theme'
+"" Navigation
+Plugin 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k/l
+Plugin 'kien/ctrlp.vim' " simple file browsing magic
+Plugin 'nacitar/a.vim' " alternate files quickly (.c --> .h etc) via :A
 
-"" Testing
-Bundle 'thoughtbot/vim-rspec'
-Bundle 'tpope/vim-dispatch'
+"" Automagic
+Plugin 'docunext/closetag.vim' " automagically suggest closing HTML tag
+Plugin 'ervandew/supertab' " autocompletion tab magic
+Plugin 'raimondi/delimitMate' " provides insert mode auto-completion for quotes, parens, brackets, etc.
+Plugin 'tpope/vim-endwise' " wisely add end in ruby, endfunction/endif/more in vim script, etc.
+
+"" Display
+Plugin 'bling/vim-airline' " lean & mean status/tabline for vim that's light as air
+Plugin 'ntpeters/vim-better-whitespace' " highlights trailing whitespaces
+
+Plugin 'chriskempson/vim-tomorrow-theme' " neat theme for vim
 
 """""""""""""""""""""""""""""""""""""
 " CONFIG
