@@ -9,3 +9,5 @@ function rbenv {
   fi
   command rbenv $*
 }
+
+alias whois='whois -H'
