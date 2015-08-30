@@ -11,3 +11,5 @@ function rbenv {
 }
 
 alias whois='whois -H'
+alias rake='noglob rake'
+alias bundle='noglob bundle'

@@ -1,7 +1,7 @@
 set nocompatible               " be iMproved
 filetype off                   " required!
 
-set shell=/opt/boxen/homebrew/bin/zsh
+set shell=zsh
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
@@ -34,6 +34,7 @@ Plugin 'tpope/vim-surround' " tool to change and add surroundings in pair
 
 "" Navigation
 Plugin 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k/l
+Plugin 'FelikZ/ctrlp-py-matcher' " Fast CtrlP matcher based on python
 Plugin 'kien/ctrlp.vim' " simple file browsing magic
 Plugin 'nacitar/a.vim' " alternate files quickly (.c --> .h etc) via :A
 
@@ -119,8 +120,24 @@ set laststatus=2
 "" ctrlp
 let g:ctrlp_custom_ignore = '\v[\/]coverage$' " ignore folder
 
+if has('python')
+  let g:ctrlp_match_func = {'match': 'pymatcher#PyMatch'}
+endif
+
+" Set delay to prevent extra search
+"let g:ctrlp_lazy_update = 250
+
+" Do not clear filenames cache, to improve CtrlP startup
+" You can manualy clear it by <F5>
+let g:ctrlp_clear_cache_on_exit = 0
+
+" Set no file limit, we are building a big project
+let g:ctrlp_max_files = 0
+
 "" Ruby
-let g:ruby_path = system('echo $BOXEN_HOME/rbenv/shims')
+if filereadable("$BOXEN_HOME/rbenv/shims")
+  let g:ruby_path = system('echo $BOXEN_HOME/rbenv/shims')
+endif
 
 "" vim-rspec
 map <Leader>t :call RunCurrentSpecFile()<CR>
