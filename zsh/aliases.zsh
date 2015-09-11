@@ -10,6 +10,14 @@ function rbenv {
   command rbenv $*
 }
 
+function arc {
+  if [ "$1" = 'land' ]
+  then
+    set -- $* --delete-remote
+  fi
+  command arc $*
+}
+
 alias whois='whois -H'
 alias rake='noglob rake'
 alias bundle='noglob bundle'

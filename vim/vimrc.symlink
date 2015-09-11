@@ -19,6 +19,8 @@ Plugin 'pangloss/vim-javascript' " Improved JavaScript syntax support, indentati
 Plugin 'plasticboy/vim-markdown' " DAE Markdown?
 Plugin 'rodjek/vim-puppet' " Pöppet
 Plugin 'vim-ruby/vim-ruby' " Use an up-to-date version of the Ruby plugin instead of the built in one
+Plugin 'fatih/vim-go'
+Plugin 'markcornick/vim-terraform'
 
 "" Tools
 Plugin 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
@@ -139,6 +141,19 @@ if filereadable("$BOXEN_HOME/rbenv/shims")
   let g:ruby_path = system('echo $BOXEN_HOME/rbenv/shims')
 endif
 
+"" Go
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
+let g:go_fmt_command = "goimports"
+
+"" delimitMate
+let g:delimitMate_expand_cr = 2
+let g:delimitMate_expand_space = 1
+"let g:delimitMate_jump_expansion = 1
+
 "" vim-rspec
 map <Leader>t :call RunCurrentSpecFile()<CR>
 map <Leader>s :call RunNearestSpec()<CR>
@@ -238,6 +253,7 @@ set timeoutlen=1000 ttimeoutlen=0
 :let g:syntastic_html_validator_parser = 'html5'
 :let g:syntastic_mode_map = { 'mode': 'active',
                             \ 'passive_filetypes': ['puppet'] }
+:let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
 
 :let g:indentLine_char = '︙'
 :let g:indentLine_color_term = 239
