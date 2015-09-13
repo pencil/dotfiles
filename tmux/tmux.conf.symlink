@@ -11,7 +11,6 @@ set -g default-terminal screen-256color
 
 # http://robots.thoughtbot.com/how-to-copy-and-paste-with-tmux-on-mac-os-x
 set-option -g default-command "reattach-to-user-namespace -l zsh"
-set-option -g default-shell /usr/local/bin/zsh
 
 # Keep your finger on ctrl, or don't
 bind-key ^D detach-client
