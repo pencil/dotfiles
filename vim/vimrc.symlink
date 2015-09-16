@@ -84,8 +84,6 @@ if has('neovim')
 else
   set clipboard=unnamed
 endif
-" allow copying to tmux buffer
-"set clipboard=
 
 "" Searching
 set hlsearch                      " highlight matches
@@ -98,7 +96,6 @@ set wrap                          " wrap lines
 set tabstop=2                     " a tab is two spaces
 set shiftwidth=2                  " an autoindent (with <<) is two spaces
 set expandtab                     " use spaces, not tabs
-"set list                          " Show invisible characters
 
 """ vim-airline
 "" detection of whitespace errors
@@ -238,8 +235,8 @@ nnoremap <silent> <leader>DD :exe ":profile start profile.log"<cr>:exe ":profile
 nnoremap <silent> <leader>DQ :exe ":profile pause"<cr>:noautocmd qall!<cr>
 
 " tags
-:set tags=./.tags;
-:let g:easytags_dynamic_files = 2
+set tags=./.tags;
+let g:easytags_dynamic_files = 2
 
 " http://superuser.com/questions/195022/vim-how-to-synchronize-nerdtree-with-current-opened-tab-file-path
 map <leader>r :NERDTreeFind<cr>
@@ -250,12 +247,12 @@ set timeoutlen=1000 ttimeoutlen=0
 "  set mouse=a
 "endif
 
-:let g:syntastic_html_validator_parser = 'html5'
-:let g:syntastic_mode_map = { 'mode': 'active',
-                            \ 'passive_filetypes': ['puppet'] }
-:let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
+let g:syntastic_html_validator_parser = 'html5'
+let g:syntastic_mode_map = { 'mode': 'active',
+                           \ 'passive_filetypes': ['puppet'] }
+let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
 
-:let g:indentLine_char = '︙'
-:let g:indentLine_color_term = 239
+let g:indentLine_char = '︙'
+let g:indentLine_color_term = 239
 
 let g:clang_library_path = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib'
