@@ -21,3 +21,4 @@ function arc {
 alias whois='whois -H'
 alias rake='noglob rake'
 alias bundle='noglob bundle'
+alias jsonpp='underscore print --color'
