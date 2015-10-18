@@ -27,6 +27,9 @@ bind-key r source-file ~/.tmux.conf
 # Clear buffer
 bind-key k clear-history
 
+# New session
+bind-key ^N new
+
 # Enable mouse
 set -g mouse-utf8 on
 set -g mouse on
