@@ -28,10 +28,8 @@ bind-key r source-file ~/.tmux.conf
 bind-key k clear-history
 
 # Enable mouse
-set -g mode-mouse on
-set -g mouse-select-window on
-set -g mouse-select-pane on
-set -g mouse-resize-pane on
+set -g mouse-utf8 on
+set -g mouse on
 
 # status on top
 #set -g status-position top
