@@ -31,8 +31,10 @@ bind-key k clear-history
 bind-key ^N new
 
 # Enable mouse
-set -g mouse-utf8 on
-set -g mouse on
+set -g mode-mouse on
+set -g mouse-select-window on
+set -g mouse-select-pane on
+set -g mouse-resize-pane on
 
 # status on top
 #set -g status-position top
