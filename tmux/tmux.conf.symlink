@@ -31,10 +31,8 @@ bind-key k clear-history
 bind-key ^N new
 
 # Enable mouse
-set -g mode-mouse on
-set -g mouse-select-window on
-set -g mouse-select-pane on
-set -g mouse-resize-pane on
+set -g mouse on
+set -g mouse-utf8 on
 
 # status on top
 #set -g status-position top
@@ -79,6 +77,17 @@ bind-key -t vi-copy y copy-pipe "reattach-to-user-namespace pbcopy"
 # Update default binding of `Enter` to also use copy-pipe
 unbind -t vi-copy Enter
 bind-key -t vi-copy Enter copy-pipe "reattach-to-user-namespace pbcopy"
+
+# Allows you to press page up in normal mode and have it scroll back into the history
+bind-key -T root PPage if-shell -F "#{alternate_on}" "send-keys PPage" "copy-mode -e; send-keys PPage"
+bind-key -t vi-copy PPage page-up
+bind-key -t vi-copy NPage page-down
+
+# Very similar to page up, except for the mouse wheel
+bind-key -T root WheelUpPane if-shell -F -t = "#{alternate_on}" "send-keys -M" "select-pane -t =; copy-mode -e; send-keys -M"
+bind-key -T root WheelDownPane if-shell -F -t = "#{alternate_on}" "send-keys -M" "select-pane -t =; send-keys -M"
+bind-key -t vi-copy WheelUpPane halfpage-up
+bind-key -t vi-copy WheelDownPane halfpage-down
 
 # Smart pane switching with awareness of vim splits
 bind -n C-k run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vim-select-pane -U'
