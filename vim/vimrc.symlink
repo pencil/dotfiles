@@ -138,6 +138,9 @@ if filereadable("$BOXEN_HOME/rbenv/shims")
   let g:ruby_path = system('echo $BOXEN_HOME/rbenv/shims')
 endif
 
+" syntax highlighting for ARB templates (ActiveAdmin)
+autocmd BufRead,BufNewFile *.arb setfiletype ruby
+
 "" Go
 let g:go_highlight_functions = 1
 let g:go_highlight_methods = 1
