@@ -12,6 +12,7 @@ alias iphp='php -a'
 alias rc='rails console'
 alias qq='touch tmp/restart.txt'
 alias b='bundle'
+alias history='history 1'
 
 # ssh wrapper that rename current tmux window to the hostname of the
 # remote host.

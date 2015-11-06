@@ -67,6 +67,7 @@ set ruler       " show the cursor position all the time
 set scrolloff=3 " provide some context when editing
 set foldlevelstart=20
 let g:vim_markdown_folding_disabled=1
+let mapleader = "\<Space>"
 "autocmd BufReadPost,FileReadPost,BufNewFile * call system("tmux rename-window %")
 
 au BufNewFile,BufRead *.pys set filetype=python
