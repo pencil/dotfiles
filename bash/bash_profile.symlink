@@ -8,7 +8,10 @@ export HISTSIZE=3000
 export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT="%F %T "
 
-source /opt/boxen/env.sh
+if [ -d "/opt/boxen" ]
+then
+  source /opt/boxen/env.sh
+fi
 
 if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then
   . $(brew --prefix)/share/bash-completion/bash_completion
@@ -17,7 +20,7 @@ fi
 export ACLOCAL_FLAGS="-I/usr/local/share/aclocal $ACLOCAL_FLAGS"
 
 #JAVA_HOME=/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home/
-export JAVA_HOME="$(/usr/libexec/java_home)"
+#export JAVA_HOME="$(/usr/libexec/java_home)"
 
 # EC2 API Tools
 #EC2_PRIVATE_KEY="$(/bin/ls "$HOME"/.ec2/pk-*.pem | /usr/bin/head -1)"
