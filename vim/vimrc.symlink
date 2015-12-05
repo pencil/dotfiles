@@ -155,11 +155,6 @@ let g:delimitMate_expand_cr = 2
 let g:delimitMate_expand_space = 1
 "let g:delimitMate_jump_expansion = 1
 
-"" vim-rspec
-map <Leader>t :call RunCurrentSpecFile()<CR>
-map <Leader>s :call RunNearestSpec()<CR>
-let g:rspec_command = "Dispatch rspec {spec}"
-
 "" Paths
 silent !mkdir -p ~/.vim/_backup ~/.vim/_temp ~/.vim/_undo
 set backupdir=~/.vim/_backup    " where to put backup files.
@@ -208,6 +203,7 @@ map <C-n> :NERDTreeToggle<CR>
 " autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 
 " git gutter symbols
+let g:gitgutter_map_keys = 0
 let g:gitgutter_sign_added = '⇒'
 let g:gitgutter_sign_modified = '⇔'
 let g:gitgutter_sign_removed = '⇐'
@@ -260,3 +256,8 @@ let g:indentLine_char = '︙'
 let g:indentLine_color_term = 239
 
 let g:clang_library_path = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib'
+
+" cycle through buffers
+nmap <leader>h :bprev<CR>
+nmap <leader>l :bnext<CR>
+nmap <leader>d :bdelete<CR>
