@@ -17,9 +17,7 @@ bind-key ^D detach-client
 
 # Create splits and vertical splits
 bind-key v split-window -h -c '#{pane_current_path}'
-bind-key ^V split-window -h -c '#{pane_current_path}'
 bind-key s split-window -c '#{pane_current_path}'
-bind-key ^S split-window -c '#{pane_current_path}'
 
 # Reload key
 bind-key r source-file ~/.tmux.conf
@@ -29,6 +27,7 @@ bind-key k clear-history
 
 # New session
 bind-key ^N new
+bind-key ^F new
 
 # Enable mouse
 set -g mouse on

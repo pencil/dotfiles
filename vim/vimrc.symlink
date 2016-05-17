@@ -17,10 +17,12 @@ Plugin 'groenewege/vim-less' " Less CSS shenanigans
 Plugin 'kchmck/vim-coffee-script' " CoffeeScript syntax, indentation, compiling, etc.
 Plugin 'pangloss/vim-javascript' " Improved JavaScript syntax support, indentation, etc.
 Plugin 'plasticboy/vim-markdown' " DAE Markdown?
-Plugin 'rodjek/vim-puppet' " Pöppet
+Plugin 'rodjek/vim-puppet' " Puppet
 Plugin 'vim-ruby/vim-ruby' " Use an up-to-date version of the Ruby plugin instead of the built in one
 Plugin 'fatih/vim-go'
 Plugin 'markcornick/vim-terraform'
+Plugin 'tpope/vim-bundler' " Lightweight support for Ruby's Bundler
+Plugin 'tpope/vim-rbenv' " Minimal rbenv support
 
 "" Tools
 Plugin 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
@@ -33,6 +35,7 @@ Plugin 'tpope/vim-dispatch' " run stuff async
 Plugin 'tpope/vim-fugitive' " Git magic
 Plugin 'tpope/vim-repeat' " enable repeating supported plugin maps with .
 Plugin 'tpope/vim-surround' " tool to change and add surroundings in pair
+Plugin 'rizzatti/dash.vim' " Search Dash.app from Vim
 
 "" Navigation
 Plugin 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k/l
@@ -45,9 +48,12 @@ Plugin 'docunext/closetag.vim' " automagically suggest closing HTML tag
 Plugin 'ervandew/supertab' " autocompletion tab magic
 Plugin 'raimondi/delimitMate' " provides insert mode auto-completion for quotes, parens, brackets, etc.
 Plugin 'tpope/vim-endwise' " wisely add end in ruby, endfunction/endif/more in vim script, etc.
+"Plugin 'craigemery/vim-autotag' " updates entries in a tags file automatically when saving 
+
 
 "" Display
-Plugin 'bling/vim-airline' " lean & mean status/tabline for vim that's light as air
+Plugin 'vim-airline/vim-airline' " lean & mean status/tabline for vim that's light as air
+Plugin 'vim-airline/vim-airline-themes' " themes for airline
 Plugin 'ntpeters/vim-better-whitespace' " highlights trailing whitespaces
 
 Plugin 'chriskempson/vim-tomorrow-theme' " neat theme for vim
@@ -236,7 +242,9 @@ nnoremap <silent> <leader>DQ :exe ":profile pause"<cr>:noautocmd qall!<cr>
 
 " tags
 set tags=./.tags;
-let g:easytags_dynamic_files = 2
+"let g:easytags_dynamic_files = 2
+nmap <leader>t :tag <C-r><C-w><CR>
+nmap <leader>p :pop<CR>
 
 " http://superuser.com/questions/195022/vim-how-to-synchronize-nerdtree-with-current-opened-tab-file-path
 map <leader>r :NERDTreeFind<cr>
@@ -247,6 +255,8 @@ set timeoutlen=1000 ttimeoutlen=0
 "  set mouse=a
 "endif
 
+"let g:syntastic_ruby_exec = '~/.rbenv/versions/2.1.5/bin/ruby'
+let g:syntastic_ruby_exec = '~/.rbenv/shims/ruby'
 let g:syntastic_html_validator_parser = 'html5'
 let g:syntastic_mode_map = { 'mode': 'active',
                            \ 'passive_filetypes': ['puppet'] }
@@ -261,3 +271,9 @@ let g:clang_library_path = '/Applications/Xcode.app/Contents/Developer/Toolchain
 nmap <leader>h :bprev<CR>
 nmap <leader>l :bnext<CR>
 nmap <leader>d :bdelete<CR>
+
+" Dash.app
+nmap <silent> <leader>D <Plug>DashSearch
+let g:dash_activate = 0
+
+nmap <leader>q :quit<CR>
