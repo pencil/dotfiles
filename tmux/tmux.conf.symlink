@@ -31,13 +31,13 @@ bind-key ^F new
 
 # Enable mouse
 set -g mouse on
-set -g mouse-utf8 on
+#set -g mouse-utf8 on
 
 # status on top
 #set -g status-position top
 
 # status line
-set -g status-utf8 on
+#set -g status-utf8 on
 set -g status-justify left
 set -g status-bg black
 set -g status-fg white
@@ -94,3 +94,7 @@ bind -n C-j run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vi
 bind -n C-h run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vim-select-pane -L'
 bind -n C-l run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vim-select-pane -R'
 bind -n "C-\\" run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vim-select-pane -l'
+
+# cluster ssh stuff
+#bind-key ^S command-prompt -p "cluster" "new-window -n %1 '$HOME/bin/tssh %1'"
+bind-key a set-window-option synchronize-panes

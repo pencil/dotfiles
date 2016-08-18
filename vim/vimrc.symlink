@@ -40,7 +40,7 @@ Plugin 'rizzatti/dash.vim' " Search Dash.app from Vim
 "" Navigation
 Plugin 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k/l
 Plugin 'FelikZ/ctrlp-py-matcher' " Fast CtrlP matcher based on python
-Plugin 'kien/ctrlp.vim' " simple file browsing magic
+Plugin 'ctrlpvim/ctrlp.vim' " simple file browsing magic
 Plugin 'nacitar/a.vim' " alternate files quickly (.c --> .h etc) via :A
 
 "" Automagic
@@ -83,14 +83,7 @@ au BufNewFile,BufRead *.pys set filetype=python
 set hidden
 
 " http://robots.thoughtbot.com/how-to-copy-and-paste-with-tmux-on-mac-os-x
-if has('neovim')
-  let s:python_host_init = 'python -c "import neovim; neovim.start_host()"'
-  let &initpython = s:python_host_init
-  let &initclipboard = s:python_host_init
-  set unnamedclip " Automatically use clipboard as storage for the unnamed register
-else
-  set clipboard=unnamed
-endif
+set clipboard=unnamed
 
 "" Searching
 set hlsearch                      " highlight matches

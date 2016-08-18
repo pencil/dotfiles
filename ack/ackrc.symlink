@@ -19,7 +19,7 @@
 --nogettext
 
 # Plaintext
---type-set=plaintext:ext:md,mdown,markdown,mkdn,textile,rst,txt
+--type-set=plaintext:ext:md,mdown,markdown,mkdn,textile,rst,txt,cfg
 
 # CSS (SASS and Less)
 --type-add=css:ext:scss,sass,less
