@@ -2,14 +2,14 @@ set nocompatible               " be iMproved
 filetype off                   " required!
 
 set shell=zsh
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
 
 """""""""""""""""""""""""""""""""""""
 " PLUGINS
 """""""""""""""""""""""""""""""""""""
 
-Plugin 'gmarik/vundle'
+Plugin 'VundleVim/Vundle.vim'
 
 "" Languages
 Plugin 'cocoa.vim' " Cocoa syntax highlighting, code completion, documentation lookup, etc.
@@ -58,11 +58,12 @@ Plugin 'ntpeters/vim-better-whitespace' " highlights trailing whitespaces
 
 Plugin 'chriskempson/vim-tomorrow-theme' " neat theme for vim
 
+call vundle#end()            " required
+filetype plugin indent on    " required
+
 """""""""""""""""""""""""""""""""""""
 " CONFIG
 """""""""""""""""""""""""""""""""""""
-
-filetype plugin indent on
 
 "" Look and feel
 color Tomorrow-Night
