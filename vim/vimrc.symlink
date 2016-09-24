@@ -86,6 +86,9 @@ set hidden
 " http://robots.thoughtbot.com/how-to-copy-and-paste-with-tmux-on-mac-os-x
 set clipboard=unnamed
 
+" disable mouse
+set mouse=
+
 "" Searching
 set hlsearch                      " highlight matches
 set incsearch                     " incremental searching
@@ -271,3 +274,5 @@ nmap <silent> <leader>D <Plug>DashSearch
 let g:dash_activate = 0
 
 nmap <leader>q :quit<CR>
+
+let g:ftplugin_sql_omni_key = '<Plug>DisableSqlOmni'

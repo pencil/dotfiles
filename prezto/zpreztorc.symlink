@@ -33,14 +33,15 @@ zstyle ':prezto:load' pmodule \
   'spectrum' \
   'utility' \
   'completion' \
-  'prompt' \
   'git' \
   'homebrew' \
   'osx' \
   'rails' \
   'ruby' \
   'node' \
-  'tmux'
+  'tmux' \
+  'syntax-highlighting' \
+  'prompt'
 
 #
 # Editor
@@ -130,7 +131,6 @@ zstyle ':prezto:module:syntax-highlighting' highlighters \
   'main' \
   'brackets' \
   'pattern' \
-  'cursor' \
   'root'
 #
 # Set syntax highlighting styles.
