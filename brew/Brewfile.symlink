@@ -1,7 +1,8 @@
 cask_args appdir: '/Applications'
-tap 'caskroom/cask'
 tap 'homebrew/core'
 tap 'homebrew/dupes'
+tap 'caskroom/cask'
+tap 'caskroom/fonts'
 brew 'ack'
 brew 'curl'
 brew 'exiftool'
@@ -25,16 +26,17 @@ brew 'whois'
 brew 'youtube-dl'
 brew 'zsh'
 brew 'zsh-completions'
-cask 'skype'
+cask 'font-meslo-lg-for-powerline'
 cask 'google-chrome'
-cask 'iterm2'
 cask 'istat-menus'
+cask 'iterm2'
+cask 'skype'
 cask 'slack'
 mas '1Password', id: 443987910
-mas 'Xcode', id: 497799835
-mas 'Type2Phone', id: 472717129
-mas 'Deliveries', id: 924726344
-mas 'Tweetbot', id: 557168941
 mas 'Dash', id: 449589707
+mas 'Deliveries', id: 924726344
 mas 'Divvy', id: 413857545
 mas 'Pixelmator', id: 407963104
+mas 'Tweetbot', id: 557168941
+mas 'Type2Phone', id: 472717129
+mas 'Xcode', id: 497799835
