@@ -12,8 +12,8 @@ brew 'reattach-to-user-namespace'
 brew 'whois'
 brew 'zsh-completions'
 brew 'git'
+brew 'youtube-dl'
 cask 'skype'
-cask 'dropbox'
 cask 'google-chrome'
 cask 'iterm2'
 cask 'istat-menus'
@@ -25,3 +25,4 @@ mas 'Deliveries', id: 924726344
 mas 'Tweetbot', id: 557168941
 mas 'Dash', id: 449589707
 mas 'Divvy', id: 413857545
+mas 'Pixelmator', id: 407963104
