@@ -10,11 +10,14 @@ brew 'the_silver_searcher'
 brew 'ack'
 brew 'reattach-to-user-namespace'
 brew 'whois'
+brew 'zsh-completions'
+brew 'git'
 cask 'skype'
 cask 'dropbox'
 cask 'google-chrome'
 cask 'iterm2'
 cask 'istat-menus'
+cask 'slack'
 mas '1Password', id: 443987910
 mas 'Xcode', id: 497799835
 mas 'Type2Phone', id: 472717129
