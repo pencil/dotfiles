@@ -217,6 +217,9 @@ if executable('ag')
 
   " ag is fast enough that CtrlP doesn't need to cache
   let g:ctrlp_use_caching = 0
+
+  " Configure ag.vim to always start searching from project root instead of cwd
+  let g:ag_working_path_mode="r"
 endif
 
 " bind K to grep word under cursor
