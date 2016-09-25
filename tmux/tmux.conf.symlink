@@ -89,11 +89,11 @@ bind-key -t vi-copy WheelUpPane halfpage-up
 bind-key -t vi-copy WheelDownPane halfpage-down
 
 # Smart pane switching with awareness of vim splits
-bind -n C-k run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vim-select-pane -U'
-bind -n C-j run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vim-select-pane -D'
-bind -n C-h run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vim-select-pane -L'
-bind -n C-l run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vim-select-pane -R'
-bind -n "C-\\" run-shell 'PATH=/opt/boxen/homebrew/bin:/usr/local/bin:$PATH tmux-vim-select-pane -l'
+bind -n C-k run-shell 'PATH=/usr/local/bin:$PATH tmux-vim-select-pane -U'
+bind -n C-j run-shell 'PATH=/usr/local/bin:$PATH tmux-vim-select-pane -D'
+bind -n C-h run-shell 'PATH=/usr/local/bin:$PATH tmux-vim-select-pane -L'
+bind -n C-l run-shell 'PATH=/usr/local/bin:$PATH tmux-vim-select-pane -R'
+bind -n "C-\\" run-shell 'PATH=/usr/local/bin:$PATH tmux-vim-select-pane -l'
 
 # cluster ssh stuff
 #bind-key ^S command-prompt -p "cluster" "new-window -n %1 '$HOME/bin/tssh %1'"

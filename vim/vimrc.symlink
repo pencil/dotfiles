@@ -137,11 +137,6 @@ let g:ctrlp_clear_cache_on_exit = 0
 " Set no file limit, we are building a big project
 let g:ctrlp_max_files = 0
 
-"" Ruby
-if filereadable("$BOXEN_HOME/rbenv/shims")
-  let g:ruby_path = system('echo $BOXEN_HOME/rbenv/shims')
-endif
-
 " syntax highlighting for ARB templates (ActiveAdmin)
 autocmd BufRead,BufNewFile *.arb setfiletype ruby
 

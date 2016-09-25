@@ -8,11 +8,6 @@ export HISTSIZE=3000
 export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT="%F %T "
 
-if [ -d "/opt/boxen" ]
-then
-  source /opt/boxen/env.sh
-fi
-
 if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then
   . $(brew --prefix)/share/bash-completion/bash_completion
 fi
@@ -36,12 +31,6 @@ export SVN_EDITOR=$EDITOR
 
 export CLICOLOR=1
 export GREP_OPTIONS='--color=auto --exclude-dir=.cvs --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn'
-
-export BOXEN_HOME='/opt/boxen'
-export CFLAGS="-I$BOXEN_HOME/homebrew/include"
-export CPPFLAGS="-I$BOXEN_HOME/homebrew/include"
-export CPLUS_INCLUDE_PATH="$BOXEN_HOME/homebrew/include"
-export LIBRARY_PATH="$BOXEN_HOME/homebrew/lib"
 
 # spring is the perfect example of tackling the symptoms instead of fixing the
 # actual problem. Caching the Rails environment causes problems such as missing
