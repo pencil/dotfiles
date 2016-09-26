@@ -15,6 +15,9 @@ brew 'md5sha1sum'
 brew 'netcat'
 brew 'pssh'
 brew 'reattach-to-user-namespace'
+brew 'ruby'
+brew 'perl'
+brew 'python'
 brew 'ssh-copy-id'
 brew 'the_silver_searcher'
 brew 'tmux'
@@ -32,10 +35,13 @@ cask 'istat-menus'
 cask 'iterm2'
 cask 'skype'
 cask 'slack'
+cask 'steam'
 mas '1Password', id: 443987910
 mas 'Dash', id: 449589707
 mas 'Deliveries', id: 924726344
 mas 'Divvy', id: 413857545
+mas 'Numbers', id: 409203825
+mas 'Pages', id: 409201541
 mas 'Pixelmator', id: 407963104
 mas 'Tweetbot', id: 557168941
 mas 'Type2Phone', id: 472717129
