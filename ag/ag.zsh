@@ -1,1 +1,1 @@
-alias ag='ag --path-to-agignore=~/.agignore'
+alias ag='ag --path-to-ignore=~/.agignore'
