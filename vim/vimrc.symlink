@@ -42,6 +42,7 @@ Plugin 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k
 Plugin 'FelikZ/ctrlp-py-matcher' " Fast CtrlP matcher based on python
 Plugin 'ctrlpvim/ctrlp.vim' " simple file browsing magic
 Plugin 'nacitar/a.vim' " alternate files quickly (.c --> .h etc) via :A
+Plugin 'takac/vim-hardtime' " only allow one directional key per second
 
 "" Automagic
 Plugin 'docunext/closetag.vim' " automagically suggest closing HTML tag
@@ -71,10 +72,13 @@ syntax enable
 set encoding=utf-8
 set number
 set ruler       " show the cursor position all the time
+set cursorline  " highlight current line
 set scrolloff=3 " provide some context when editing
 set foldlevelstart=20
 let g:vim_markdown_folding_disabled=1
 let mapleader = "\<Space>"
+" shows line numbers relative to the line currently on
+set relativenumber
 "autocmd BufReadPost,FileReadPost,BufNewFile * call system("tmux rename-window %")
 
 au BufNewFile,BufRead *.pys set filetype=python
@@ -224,6 +228,7 @@ endif
 nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 
 " Get off my lawn
+let g:hardtime_default_on = 1
 nnoremap <Left> :echoe "Use h"<CR>
 nnoremap <Right> :echoe "Use l"<CR>
 nnoremap <Up> :echoe "Use k"<CR>
