@@ -37,9 +37,12 @@ cask 'google-chrome-beta'
 cask 'istat-menus'
 cask 'iterm2'
 cask 'kaleidoscope'
+cask 'keepingyouawake'
 cask 'skype'
 cask 'slack'
 cask 'steam'
+cask 'steelseries-engine'
+cask 'virtualbox'
 mas '1Password', id: 443987910
 mas 'Dash', id: 449589707
 mas 'Deliveries', id: 924726344
