@@ -10,6 +10,9 @@ sudo nvram SystemAudioVolume=" "
 # Disable mouse acceleration
 defaults write .GlobalPreferences com.apple.mouse.scaling -1
 
+# Disable mouse wheel acceleration
+defaults write .GlobalPreferences com.apple.scrollwheel.scaling -1
+
 # Enable transparency in the menu bar and elsewhere
 defaults write com.apple.universalaccess reduceTransparency -bool false
 
