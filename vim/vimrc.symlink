@@ -23,6 +23,7 @@ Plugin 'fatih/vim-go'
 Plugin 'markcornick/vim-terraform'
 Plugin 'tpope/vim-bundler' " Lightweight support for Ruby's Bundler
 Plugin 'tpope/vim-rbenv' " Minimal rbenv support
+Plugin 'leafgarland/typescript-vim' " Typescript
 
 "" Tools
 Plugin 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
@@ -74,6 +75,7 @@ set number
 set ruler       " show the cursor position all the time
 set cursorline  " highlight current line
 set scrolloff=3 " provide some context when editing
+"set foldmethod=syntax
 set foldlevelstart=20
 let g:vim_markdown_folding_disabled=1
 let mapleader = "\<Space>"
@@ -148,7 +150,11 @@ let g:go_highlight_methods = 1
 let g:go_highlight_structs = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
-let g:go_fmt_command = "goimports"
+let g:go_fmt_command = 'goimports'
+let g:go_fmt_options = {
+  \ 'gofmt': '-s',
+  \ 'goimports': '-local code.justin.tv',
+  \ }
 
 "" delimitMate
 let g:delimitMate_expand_cr = 2
@@ -158,7 +164,7 @@ let g:delimitMate_expand_space = 1
 "" Paths
 silent !mkdir -p ~/.vim/_backup ~/.vim/_temp ~/.vim/_undo
 set backupdir=~/.vim/_backup    " where to put backup files.
-set directory=~/.vim/_temp      " where to put swap files.
+set directory=~/.vim/_temp//    " where to put swap files.
 set undodir=~/.vim/_undo        " where to save undo histories
 
 "" undo history

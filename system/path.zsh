@@ -1,2 +1,2 @@
-export PATH="/usr/local/bin:/usr/local/sbin:$DOTFILES:$PATH"
+export PATH="$DOTFILES:$PATH"
 

@@ -10,4 +10,4 @@ tmp/**/*
 .buildpath
 .rails_generators~
 /.tags
-
+.tcs-skeletons/

@@ -70,23 +70,19 @@ set -g status-left ''
 setw -g mode-keys vi
 
 # Setup 'v' to begin selection as in Vim
-bind-key -t vi-copy v begin-selection
-bind-key -t vi-copy y copy-pipe "reattach-to-user-namespace pbcopy"
-
-# Update default binding of `Enter` to also use copy-pipe
-unbind -t vi-copy Enter
-bind-key -t vi-copy Enter copy-pipe "reattach-to-user-namespace pbcopy"
+bind-key -Tcopy-mode-vi 'v' send -X begin-selection
+bind-key -Tcopy-mode-vi 'y' send -X copy-selection
 
 # Allows you to press page up in normal mode and have it scroll back into the history
 bind-key -T root PPage if-shell -F "#{alternate_on}" "send-keys PPage" "copy-mode -e; send-keys PPage"
-bind-key -t vi-copy PPage page-up
-bind-key -t vi-copy NPage page-down
+bind-key -T copy-mode PPage send -X page-up
+bind-key -T copy-mode NPage send -X page-down
 
 # Very similar to page up, except for the mouse wheel
 bind-key -T root WheelUpPane if-shell -F -t = "#{alternate_on}" "send-keys -M" "select-pane -t =; copy-mode -e; send-keys -M"
 bind-key -T root WheelDownPane if-shell -F -t = "#{alternate_on}" "send-keys -M" "select-pane -t =; send-keys -M"
-bind-key -t vi-copy WheelUpPane halfpage-up
-bind-key -t vi-copy WheelDownPane halfpage-down
+bind-key -T copy-mode WheelUpPane send -X halfpage-up
+bind-key -T copy-mode WheelDownPane send -X halfpage-down
 
 # Smart pane switching with awareness of Vim splits.
 # See: https://github.com/christoomey/vim-tmux-navigator
@@ -101,3 +97,7 @@ bind-key -n C-\ if-shell "$is_vim" "send-keys C-\\" "select-pane -l"
 # cluster ssh stuff
 #bind-key ^S command-prompt -p "cluster" "new-window -n %1 '$HOME/bin/tssh %1'"
 bind-key a set-window-option synchronize-panes
+
+# layout
+bind-key \ select-layout even-vertical
+bind-key | select-layout even-horizontal
