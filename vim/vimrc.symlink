@@ -24,6 +24,11 @@ Plugin 'markcornick/vim-terraform'
 Plugin 'tpope/vim-bundler' " Lightweight support for Ruby's Bundler
 Plugin 'tpope/vim-rbenv' " Minimal rbenv support
 Plugin 'leafgarland/typescript-vim' " Typescript
+Plugin 'OrangeT/vim-csharp' " C#
+Plugin 'jparise/vim-graphql' " GraphQL
+Plugin 'cakebaker/scss-syntax.vim' " SCSS
+"Plugin 'OmniSharp/omnisharp-vim'
+Plugin 'uarun/vim-protobuf'
 
 "" Tools
 Plugin 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
@@ -37,6 +42,7 @@ Plugin 'tpope/vim-fugitive' " Git magic
 Plugin 'tpope/vim-repeat' " enable repeating supported plugin maps with .
 Plugin 'tpope/vim-surround' " tool to change and add surroundings in pair
 Plugin 'rizzatti/dash.vim' " Search Dash.app from Vim
+Plugin 'editorconfig/editorconfig-vim' " http://editorconfig.org
 
 "" Navigation
 Plugin 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k/l
@@ -50,7 +56,9 @@ Plugin 'docunext/closetag.vim' " automagically suggest closing HTML tag
 Plugin 'ervandew/supertab' " autocompletion tab magic
 Plugin 'raimondi/delimitMate' " provides insert mode auto-completion for quotes, parens, brackets, etc.
 Plugin 'tpope/vim-endwise' " wisely add end in ruby, endfunction/endif/more in vim script, etc.
-"Plugin 'craigemery/vim-autotag' " updates entries in a tags file automatically when saving 
+"Plugin 'craigemery/vim-autotag' " updates entries in a tags file automatically when saving
+Plugin 'scrooloose/nerdcommenter' " comment functions so powerful - no comment necessary
+Plugin 'nsf/gocode', {'rtp': 'vim/'}
 
 
 "" Display
@@ -153,6 +161,8 @@ let g:ctrlp_max_files = 0
 autocmd BufRead,BufNewFile *.arb setfiletype ruby
 
 "" Go
+"let g:go_auto_type_info = 1
+"let g:go_auto_sameids = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_methods = 1
 let g:go_highlight_structs = 1
@@ -291,3 +301,10 @@ let g:dash_activate = 0
 nmap <leader>q :quit<CR>
 
 let g:ftplugin_sql_omni_key = '<Plug>DisableSqlOmni'
+
+" Omni
+set completeopt=longest,menuone
+autocmd FileType *
+  \ if &omnifunc != '' |
+  \   call SuperTabChain(&omnifunc, "<c-p>") |
+  \ endif
