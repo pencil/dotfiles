@@ -21,3 +21,4 @@ function arc {
 alias whois='whois -H'
 alias jsonpp='underscore print --color'
 alias ssh='TERM=xterm-color ssh'
+alias xkcdpass='rl -c 4 /usr/share/dict/words | xargs echo'
