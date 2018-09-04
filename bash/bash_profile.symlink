@@ -59,6 +59,7 @@ alias postgres-start='postgres -D /usr/local/var/postgres'
 alias git-delete-merged-branches='git branch --merged | grep -v "\*" | grep -v master | xargs -n 1 git branch -d'
 alias nvim='VIMRUNTIME=/usr/local/share/vim/vim74/ nvim'
 #alias vim='nvim'
+alias sed='gsed'
 
 ff() {
   find . -iname "*$1*"
