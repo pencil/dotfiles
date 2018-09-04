@@ -376,5 +376,5 @@ key_bindings:
   - { key: F10,      mods: Command, chars: "\x1b[21;3~"                  }
   - { key: F11,      mods: Command, chars: "\x1b[23;3~"                  }
   - { key: F12,      mods: Command, chars: "\x1b[24;3~"                  }
-  - { key: NumpadEnter,             chars: "\n"                          }
+  - { key: NumpadEnter,             chars: "\r"                          }
   - { key: Return,   mods: Command, command: { program: "/usr/bin/osascript", args: ["-e", "tell application \"System Events\" to tell process \"Alacritty\"", "-e", "set isFullscreen to value of attribute \"AXFullScreen\" of window 1", "-e", "set value of attribute \"AXFullScreen\" of window 1 to not isFullscreen", "-e", "end tell"] } }
