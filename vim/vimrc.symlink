@@ -160,6 +160,9 @@ let g:ctrlp_max_files = 0
 " syntax highlighting for ARB templates (ActiveAdmin)
 autocmd BufRead,BufNewFile *.arb setfiletype ruby
 
+" syntax highlighting for Jenkinsfile
+autocmd BufRead,BufNewFile Jenkinsfile setfiletype groovy
+
 "" Go
 "let g:go_auto_type_info = 1
 "let g:go_auto_sameids = 1
