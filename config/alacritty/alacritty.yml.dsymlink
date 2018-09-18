@@ -225,6 +225,11 @@ unfocused_hollow_cursor: true
 # Live config reload (changes require restart)
 live_config_reload: true
 
+scrolling:
+  # How many lines of scrollback to keep,
+  # '0' will disable scrolling.
+  history: 0
+
 # Shell
 #
 # You can set shell.program to the path of your favorite shell, e.g. /bin/fish.
