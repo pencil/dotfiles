@@ -29,6 +29,7 @@ Plugin 'jparise/vim-graphql' " GraphQL
 Plugin 'cakebaker/scss-syntax.vim' " SCSS
 "Plugin 'OmniSharp/omnisharp-vim'
 Plugin 'uarun/vim-protobuf'
+Plugin 'smerrill/vcl-vim-plugin'
 
 "" Tools
 Plugin 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
