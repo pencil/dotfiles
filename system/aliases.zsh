@@ -42,3 +42,7 @@ ssh() {
     tmux rename-window "$old_name"
   fi
 }
+
+cdg() {
+  cd $GOPATH/src/$1
+}
