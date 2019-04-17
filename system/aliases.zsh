@@ -22,8 +22,14 @@ ssh() {
     command ssh $@
     return
   fi
-  # The hostname is the last parameter (i.e. ${(P)#})
-  local remote="$(echo ${@: -1} | cut -f1 -d.)"
+
+  local remote=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -*) shift ;;
+      *)  remote="$(echo ${1} | cut -f1 -d.)"; break ;;
+    esac
+  done
   local old_name="$(tmux display-message -p '#W')"
   local renamed=0
   # Save the current name
