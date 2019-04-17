@@ -15,6 +15,10 @@ defaults write .GlobalPreferences com.apple.mouse.scaling -1
 # Disable mouse wheel acceleration
 defaults write .GlobalPreferences com.apple.scrollwheel.scaling -1
 
+# Dark mode with graphite accent
+defaults write .GlobalPreferences AppleInterfaceTheme Dark
+defaults write .GlobalPreferences AppleAccentColor -1
+
 # Enable transparency in the menu bar and elsewhere
 defaults write com.apple.universalaccess reduceTransparency -bool false
 
@@ -353,6 +357,9 @@ defaults write com.apple.dock autohide -bool true
 # Make Dock icons of hidden applications translucent
 defaults write com.apple.dock showhidden -bool true
 
+# Don’t show recent applications in Dock
+defaults write com.apple.dock show-recents -bool false
+
 # Disable the Launchpad gesture (pinch with thumb and three fingers)
 #defaults write com.apple.dock showLaunchpadGestureEnabled -int 0
 
@@ -469,8 +476,8 @@ defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebK
 defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
 defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
 
-# Enable “Do Not Track”
-defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
+# Disable “Do Not Track”
+defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool false
 
 # Update extensions automatically
 defaults write com.apple.Safari InstallExtensionUpdatesAutomatically -bool true
