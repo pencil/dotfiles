@@ -26,4 +26,4 @@ unalias rm
 # Sharing is caring... I don't care!
 unsetopt SHARE_HISTORY
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+#test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
