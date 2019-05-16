@@ -50,20 +50,16 @@ set -g status-fg white
 set -g status-interval 4
 
 # messaging
-set -g message-fg black
-set -g message-bg yellow
-set -g message-command-fg blue
-set -g message-command-bg black
+set -g message-style fg=black,bg=yellow
+set -g message-command-style fg=blue,bg=black
 
 #window mode
-setw -g mode-bg colour6
-setw -g mode-fg colour0
+setw -g mode-style bg=colour6,fg=colour0
 
 # window status
 setw -g window-status-format "#[fg=colour8]#[bg=white] #I #[bg=colour8]#[fg=white] #W "
 setw -g window-status-current-format "#[fg=black]#[bg=colour7] #I #[fg=black]#[bg=colour15] #W "
-setw -g window-status-current-bg black
-setw -g window-status-current-attr bold
+setw -g window-status-current-style bg=black,bold
 
 # Info on right
 set -g status-right "#[fg=magenta]#(sysctl -n vm.loadavg | cut -d \" \" -f 2-4) #[fg=white]| #[fg=yellow]Tmux:#S #[fg=white]| #[fg=green]%Y-%m-%d #[fg=white]| #[fg=cyan]%A %l:%M %p"
