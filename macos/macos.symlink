@@ -130,6 +130,11 @@ sudo pmset -a sms 0
 #defaults -currentHost write NSGlobalDomain com.apple.trackpad.trackpadCornerClickBehavior -int 1
 #defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true
 
+# Trackpad: Adjust speed
+defaults write NSGlobalDomain com.apple.trackpad.scaling -string "0.6875"
+defaults write NSGlobalDomain com.apple.trackpad.scrolling -string "0.1838"
+defaults write NSGlobalDomain com.apple.trackpad.forceClick -int 1
+
 # Enable “natural” scrolling
 defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
 
