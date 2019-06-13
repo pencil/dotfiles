@@ -89,7 +89,8 @@ font:
   use_thin_strokes: true
 
 # Should display the render timer
-render_timer: false
+debug:
+  render_timer: false
 
 # Colors (Tomorrow Night Bright)
 colors:
@@ -384,4 +385,4 @@ key_bindings:
   - { key: F11,      mods: Command, chars: "\x1b[23;3~"                  }
   - { key: F12,      mods: Command, chars: "\x1b[24;3~"                  }
   - { key: NumpadEnter,             chars: "\r"                          }
-  - { key: Return,   mods: Command, command: { program: "/usr/bin/osascript", args: ["-e", "tell application \"System Events\" to tell process \"Alacritty\"", "-e", "set isFullscreen to value of attribute \"AXFullScreen\" of window 1", "-e", "set value of attribute \"AXFullScreen\" of window 1 to not isFullscreen", "-e", "end tell"] } }
+  - { key: Return,   mods: Command, action: ToggleFullscreen             }
