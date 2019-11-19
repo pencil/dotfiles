@@ -80,7 +80,6 @@ filetype plugin indent on    " required
 set termguicolors
 if !has('nvim')
   " set Vim-specific sequences for RGB colors
-  set termguicolors
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 endif
@@ -99,6 +98,15 @@ let mapleader = "\<Space>"
 " shows line numbers relative to the line currently on
 set relativenumber
 "autocmd BufReadPost,FileReadPost,BufNewFile * call system("tmux rename-window %")
+
+if has('nvim')
+  highlight clear SpellCap
+  highlight SpellCap guibg=#6871ff
+  highlight clear SpellBad
+  highlight SpellBad guibg=#ff6d67
+  highlight clear SpellLocal
+  highlight SpellLocal guibg=#5ffdff
+endif
 
 au BufNewFile,BufRead *.pys set filetype=python
 
