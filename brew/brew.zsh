@@ -1,1 +1,2 @@
 export HOMEBREW_NO_ANALYTICS=1
+export LIBRARY_PATH="$LIBRARY_PATH:/usr/local/lib"
