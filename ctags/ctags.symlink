@@ -3,3 +3,4 @@
 --exclude=.git
 --exclude=log
 --languages=-javascript
+--python-kinds=-i
