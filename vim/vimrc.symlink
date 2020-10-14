@@ -68,7 +68,6 @@ Plugin 'tpope/vim-endwise' " wisely add end in ruby, endfunction/endif/more in v
 Plugin 'scrooloose/nerdcommenter' " comment functions so powerful - no comment necessary
 Plugin 'vim-scripts/indentpython.vim'
 Plugin 'mgedmin/python-imports.vim' " help adding import statements in Python modules
-Plugin 'psf/black'
 
 "" Display
 Plugin 'vim-airline/vim-airline' " lean & mean status/tabline for vim that's light as air
@@ -343,7 +342,3 @@ let g:ale_cpp_cc_options = '-std=c++17 -Wall'
 " gutentags
 let g:gutentags_ctags_tagfile = '.tags'
 let g:gutentags_exclude_filetypes = ['gitcommit', 'gitconfig', 'gitrebase', 'gitsendemail', 'git']
-
-autocmd BufWritePre *.py execute ':Black'
-
-let g:black_skip_string_normalization = 1
