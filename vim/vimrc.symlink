@@ -331,10 +331,10 @@ let g:ftplugin_sql_omni_key = '<Plug>DisableSqlOmni'
 
 " Omni
 set completeopt=longest,menuone
-autocmd FileType *
-  \ if &omnifunc != '' |
-  \   call SuperTabChain(&omnifunc, "<c-x><c-o>") |
-  \ endif
+"autocmd FileType *
+"  \ if &omnifunc != '' |
+"  \   call SuperTabChain(&omnifunc, "<c-x><c-o>") |
+"  \ endif
 
 " ALE
 let g:ale_cpp_cc_options = '-std=c++17 -Wall'
