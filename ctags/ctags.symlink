@@ -2,5 +2,6 @@
 --recurse=yes
 --exclude=.git
 --exclude=log
+--exclude=build
 --languages=-javascript
 --python-kinds=-i
