@@ -22,6 +22,7 @@ defaults write .GlobalPreferences com.apple.scrollwheel.scaling -1
 # Dark mode with graphite accent
 defaults write .GlobalPreferences AppleInterfaceTheme Dark
 defaults write .GlobalPreferences AppleAccentColor -1
+defaults write .GlobalPreferences AppleAccentColor -int 1
 
 # Enable transparency in the menu bar and elsewhere
 defaults write com.apple.universalaccess reduceTransparency -bool false
@@ -405,6 +406,10 @@ sudo ln -sf "/Applications/Xcode.app/Contents/Developer/Applications/Simulator (
 # Bottom left screen corner → Start screen saver
 #defaults write com.apple.dock wvous-bl-corner -int 5
 #defaults write com.apple.dock wvous-bl-modifier -int 0
+
+defaults write com.apple.menuextra.clock "IsAnalog" -int 1
+defaults write com.apple.menuextra.clock "ShowDayOfMonth" -int 0
+defaults write com.apple.menuextra.clock "ShowDayOfWeek" -int 0
 
 # Restart Dock
 killall Dock
