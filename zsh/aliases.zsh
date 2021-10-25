@@ -24,3 +24,6 @@ alias xkcdpass='rl -c 4 /usr/share/dict/words | xargs echo'
 alias http_server='python -m SimpleHTTPServer'
 alias urldecode='python -c "import sys, urllib as ul; \
     print(ul.unquote_plus(sys.argv[1]))"'
+
+# attach or create new tmux session
+alias atmux='tmux new -As0'
