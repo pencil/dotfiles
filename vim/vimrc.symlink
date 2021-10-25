@@ -11,68 +11,32 @@ call vundle#begin()
 
 Plugin 'VundleVim/Vundle.vim'
 
-"" Languages
-Plugin 'cocoa.vim' " Cocoa syntax highlighting, code completion, documentation lookup, etc.
-Plugin 'groenewege/vim-less' " Less CSS shenanigans
-Plugin 'kchmck/vim-coffee-script' " CoffeeScript syntax, indentation, compiling, etc.
-Plugin 'pangloss/vim-javascript' " Improved JavaScript syntax support, indentation, etc.
-Plugin 'plasticboy/vim-markdown' " DAE Markdown?
-Plugin 'rodjek/vim-puppet' " Puppet
-Plugin 'vim-ruby/vim-ruby' " Use an up-to-date version of the Ruby plugin instead of the built in one
-Plugin 'fatih/vim-go'
-Plugin 'markcornick/vim-terraform'
-Plugin 'tpope/vim-bundler' " Lightweight support for Ruby's Bundler
-Plugin 'tpope/vim-rbenv' " Minimal rbenv support
-Plugin 'leafgarland/typescript-vim' " Typescript
-Plugin 'OrangeT/vim-csharp' " C#
-Plugin 'jparise/vim-graphql' " GraphQL
-Plugin 'cakebaker/scss-syntax.vim' " SCSS
-"Plugin 'OmniSharp/omnisharp-vim'
-Plugin 'uarun/vim-protobuf'
-Plugin 'smerrill/vcl-vim-plugin'
-
 "" Tools
 Plugin 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
-Plugin 'godlygeek/tabular' " aling my code plox
 Plugin 'rking/ag.vim' " RIP ack
-"Plugin 'scrooloose/syntastic' " check code syntax
 Plugin 'w0rp/ale' " like syntastic, but async
 Plugin 'sjl/gundo.vim' " visualizes the undo tree; I use this every day!
-Plugin 'tpope/vim-commentary' " comment code out the fast way
-Plugin 'tpope/vim-dispatch' " run stuff async
-Plugin 'tpope/vim-fugitive' " Git magic
 Plugin 'tpope/vim-repeat' " enable repeating supported plugin maps with .
 Plugin 'tpope/vim-surround' " tool to change and add surroundings in pair
-Plugin 'rizzatti/dash.vim' " Search Dash.app from Vim
 Plugin 'editorconfig/editorconfig-vim' " http://editorconfig.org
-Plugin 'alfredodeza/pytest.vim'
 
 "" Navigation
 Plugin 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k/l
-Plugin 'FelikZ/ctrlp-py-matcher' " Fast CtrlP matcher based on python
-Plugin 'ctrlpvim/ctrlp.vim' " simple file browsing magic
-Plugin 'nacitar/a.vim' " alternate files quickly (.c --> .h etc) via :A
 Plugin 'takac/vim-hardtime' " only allow one directional key per second
 
-Plugin 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plugin 'junegunn/fzf.vim' " like :CtrlPTag but faster
-
-Plugin 'ludovicchabant/vim-gutentags' " management of tags files
+Plugin 'nvim-lua/popup.nvim'
+Plugin 'nvim-lua/plenary.nvim'
+Plugin 'nvim-telescope/telescope.nvim'
 
 "" Automagic
-Plugin 'docunext/closetag.vim' " automagically suggest closing HTML tag
-Plugin 'ervandew/supertab' " autocompletion tab magic
 Plugin 'raimondi/delimitMate' " provides insert mode auto-completion for quotes, parens, brackets, etc.
-Plugin 'tpope/vim-endwise' " wisely add end in ruby, endfunction/endif/more in vim script, etc.
-"Plugin 'craigemery/vim-autotag' " updates entries in a tags file automatically when saving
-Plugin 'scrooloose/nerdcommenter' " comment functions so powerful - no comment necessary
-Plugin 'vim-scripts/indentpython.vim'
-Plugin 'mgedmin/python-imports.vim' " help adding import statements in Python modules
 
 "" Display
 Plugin 'vim-airline/vim-airline' " lean & mean status/tabline for vim that's light as air
 Plugin 'vim-airline/vim-airline-themes' " themes for airline
 Plugin 'ntpeters/vim-better-whitespace' " highlights trailing whitespaces
+
+Plugin 'luochen1990/rainbow'
 
 Plugin 'chriskempson/vim-tomorrow-theme' " neat theme for vim
 
@@ -104,7 +68,11 @@ let g:vim_markdown_folding_disabled=1
 let mapleader = "\<Space>"
 " shows line numbers relative to the line currently on
 set relativenumber
+nnoremap <F5> :set relativenumber!<CR>
+"nmap <silent> <F5> :exec &nu==&rnu? "se nu!" : "se rnu!"<CR>
 "autocmd BufReadPost,FileReadPost,BufNewFile * call system("tmux rename-window %")
+
+let g:rainbow_active=1
 
 if has('nvim')
   highlight clear SpellCap
@@ -160,46 +128,6 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
 set laststatus=2
 
-"" ctrlp
-if has('python')
-  let g:ctrlp_match_func = {'match': 'pymatcher#PyMatch'}
-endif
-
-" Set delay to prevent extra search
-"let g:ctrlp_lazy_update = 250
-
-" Do not clear filenames cache, to improve CtrlP startup
-" You can manualy clear it by <F5>
-let g:ctrlp_clear_cache_on_exit = 0
-
-" Set no file limit, we are building a big project
-let g:ctrlp_max_files = 0
-
-" Search tags
-"nnoremap <leader>. :CtrlPTag<cr>
-nnoremap <leader>. :Tags<CR>
-nnoremap <leader>, :GFiles<CR>
-
-" syntax highlighting for ARB templates (ActiveAdmin)
-autocmd BufRead,BufNewFile *.arb setfiletype ruby
-
-" syntax highlighting for Jenkinsfile
-autocmd BufRead,BufNewFile Jenkinsfile setfiletype groovy
-
-"" Go
-"let g:go_auto_type_info = 1
-"let g:go_auto_sameids = 1
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_structs = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_build_constraints = 1
-let g:go_fmt_command = 'goimports'
-let g:go_fmt_options = {
-  \ 'gofmt': '-s',
-  \ 'goimports': '-local code.justin.tv',
-  \ }
-
 "" delimitMate
 let g:delimitMate_expand_cr = 2
 let g:delimitMate_expand_space = 1
@@ -222,61 +150,12 @@ nnoremap <F6> :GundoToggle<CR>
 
 set backspace=indent,eol,start
 
-"" Completion
-" Tab on the command line will show a menu to complete buffer and file names
-set wildchar=<Tab> wildmenu wildmode=full
-set wildignore=*.o,*.obj,*~ "stuff to ignore when tab completing
-set wildignore+=*sass-cache*
-set wildignore+=*DS_Store*
-set wildignore+=vendor/rails/**
-set wildignore+=vendor/cache/**
-set wildignore+=*.gem
-set wildignore+=log/**
-set wildignore+=tmp/**
-set wildignore+=coverage/**
-set wildignore+=*.png,*.jpg,*.gif
-set wildcharm=<C-Z>
-nnoremap <F10> :b <C-Z>
-
-" paste mode toggle
-map <F4> :set invpaste<CR>
-
-" toggle number
-nmap <F5> :set number! number?<CR>
-
-" for insert mode
-imap <S-Tab> <Esc><<i
-
-" NerdTree
-"autocmd vimenter * if !argc() | NERDTree | endif
-map <C-n> :NERDTreeToggle<CR>
-
-" autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
-
 " git gutter symbols
 let g:gitgutter_map_keys = 0
 let g:gitgutter_sign_added = '⇒'
 let g:gitgutter_sign_modified = '⇔'
 let g:gitgutter_sign_removed = '⇐'
 let g:gitgutter_sign_modified_removed = '⇐'
-
-" The Silver Searcher
-if executable('ag')
-  " Use ag over grep
-  set grepprg=ag\ --nogroup\ --nocolor
-
-  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g "" --ignore "_vendor" --ignore "node_modules"'
-
-  " ag is fast enough that CtrlP doesn't need to cache
-  let g:ctrlp_use_caching = 0
-
-  " Configure ag.vim to always start searching from project root instead of cwd
-  let g:ag_working_path_mode="r"
-endif
-
-" bind K to grep word under cursor
-nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 
 " Get off my lawn
 let g:hardtime_default_on = 1
@@ -295,21 +174,7 @@ set tags=./.tags;
 nmap <leader>t :tag <C-r><C-w><CR>
 nmap <leader>p :pop<CR>
 
-" http://superuser.com/questions/195022/vim-how-to-synchronize-nerdtree-with-current-opened-tab-file-path
-map <leader>r :NERDTreeFind<cr>
-
 set timeoutlen=1000 ttimeoutlen=0
-
-"if has("mouse")
-"  set mouse=a
-"endif
-
-"let g:syntastic_ruby_exec = '~/.rbenv/versions/2.1.5/bin/ruby'
-"let g:syntastic_ruby_exec = '~/.rbenv/shims/ruby'
-"let g:syntastic_html_validator_parser = 'html5'
-"let g:syntastic_mode_map = { 'mode': 'active',
-"                           \ 'passive_filetypes': ['puppet'] }
-"let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
 
 let g:indentLine_char = '︙'
 let g:indentLine_color_term = 239
@@ -321,24 +186,13 @@ nmap <leader>h :bprev<CR>
 nmap <leader>l :bnext<CR>
 nmap <leader>d :bdelete<CR>
 
-" Dash.app
-nmap <silent> <leader>D <Plug>DashSearch
-let g:dash_activate = 0
-
 nmap <leader>q :quit<CR>
-
-let g:ftplugin_sql_omni_key = '<Plug>DisableSqlOmni'
-
-" Omni
-set completeopt=longest,menuone
-"autocmd FileType *
-"  \ if &omnifunc != '' |
-"  \   call SuperTabChain(&omnifunc, "<c-x><c-o>") |
-"  \ endif
 
 " ALE
 let g:ale_cpp_cc_options = '-std=c++17 -Wall'
 
-" gutentags
-let g:gutentags_ctags_tagfile = '.tags'
-let g:gutentags_exclude_filetypes = ['gitcommit', 'gitconfig', 'gitrebase', 'gitsendemail', 'git']
+" Find files using Telescope command-line sugar.
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
