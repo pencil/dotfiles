@@ -2,46 +2,43 @@ set nocompatible               " be iMproved
 filetype off                   " required!
 
 set shell=zsh
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
 
 """""""""""""""""""""""""""""""""""""
 " PLUGINS
 """""""""""""""""""""""""""""""""""""
 
-Plugin 'VundleVim/Vundle.vim'
+call plug#begin('~/.vim/plugged')
 
 "" Tools
-Plugin 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
-Plugin 'rking/ag.vim' " RIP ack
-Plugin 'w0rp/ale' " like syntastic, but async
-Plugin 'sjl/gundo.vim' " visualizes the undo tree; I use this every day!
-Plugin 'tpope/vim-repeat' " enable repeating supported plugin maps with .
-Plugin 'tpope/vim-surround' " tool to change and add surroundings in pair
-Plugin 'editorconfig/editorconfig-vim' " http://editorconfig.org
+Plug 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
+Plug 'rking/ag.vim' " RIP ack
+Plug 'w0rp/ale' " like syntastic, but async
+Plug 'sjl/gundo.vim' " visualizes the undo tree; I use this every day!
+Plug 'tpope/vim-repeat' " enable repeating supported plugin maps with .
+Plug 'tpope/vim-surround' " tool to change and add surroundings in pair
+Plug 'editorconfig/editorconfig-vim' " http://editorconfig.org
 
 "" Navigation
-Plugin 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k/l
-Plugin 'takac/vim-hardtime' " only allow one directional key per second
+Plug 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k/l
+Plug 'takac/vim-hardtime' " only allow one directional key per second
 
-Plugin 'nvim-lua/popup.nvim'
-Plugin 'nvim-lua/plenary.nvim'
-Plugin 'nvim-telescope/telescope.nvim'
+Plug 'nvim-lua/popup.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
 
 "" Automagic
-Plugin 'raimondi/delimitMate' " provides insert mode auto-completion for quotes, parens, brackets, etc.
+Plug 'raimondi/delimitMate' " provides insert mode auto-completion for quotes, parens, brackets, etc.
 
 "" Display
-Plugin 'vim-airline/vim-airline' " lean & mean status/tabline for vim that's light as air
-Plugin 'vim-airline/vim-airline-themes' " themes for airline
-Plugin 'ntpeters/vim-better-whitespace' " highlights trailing whitespaces
+Plug 'vim-airline/vim-airline' " lean & mean status/tabline for vim that's light as air
+Plug 'vim-airline/vim-airline-themes' " themes for airline
+Plug 'ntpeters/vim-better-whitespace' " highlights trailing whitespaces
 
-Plugin 'luochen1990/rainbow'
+Plug 'luochen1990/rainbow'
 
-Plugin 'chriskempson/vim-tomorrow-theme' " neat theme for vim
+Plug 'chriskempson/vim-tomorrow-theme' " neat theme for vim
 
-call vundle#end()            " required
-filetype plugin indent on    " required
+call plug#end()
 
 """""""""""""""""""""""""""""""""""""
 " CONFIG
