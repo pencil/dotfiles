@@ -13,7 +13,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
 Plug 'rking/ag.vim' " RIP ack
 Plug 'w0rp/ale' " like syntastic, but async
-Plug 'sjl/gundo.vim' " visualizes the undo tree; I use this every day!
+Plug 'sjl/gundo.vim', { 'on': 'GundoToggle' } " visualizes the undo tree
 Plug 'tpope/vim-repeat' " enable repeating supported plugin maps with .
 Plug 'tpope/vim-surround' " tool to change and add surroundings in pair
 Plug 'editorconfig/editorconfig-vim' " http://editorconfig.org
@@ -24,7 +24,7 @@ Plug 'takac/vim-hardtime' " only allow one directional key per second
 
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'on': 'Telescope' }
 
 "" Automagic
 Plug 'raimondi/delimitMate' " provides insert mode auto-completion for quotes, parens, brackets, etc.
@@ -34,7 +34,7 @@ Plug 'vim-airline/vim-airline' " lean & mean status/tabline for vim that's light
 Plug 'vim-airline/vim-airline-themes' " themes for airline
 Plug 'ntpeters/vim-better-whitespace' " highlights trailing whitespaces
 
-Plug 'luochen1990/rainbow'
+Plug 'luochen1990/rainbow' " show diff level of parentheses in diff color
 
 Plug 'chriskempson/vim-tomorrow-theme' " neat theme for vim
 
