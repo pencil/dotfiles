@@ -22,7 +22,6 @@ defaults write .GlobalPreferences com.apple.scrollwheel.scaling -1
 # Dark mode with graphite accent
 defaults write .GlobalPreferences AppleInterfaceTheme Dark
 defaults write .GlobalPreferences AppleAccentColor -1
-defaults write .GlobalPreferences AppleAccentColor -int 1
 
 # Enable transparency in the menu bar and elsewhere
 defaults write com.apple.universalaccess reduceTransparency -bool false
