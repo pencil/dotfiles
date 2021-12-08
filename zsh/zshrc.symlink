@@ -1,6 +1,6 @@
 source ~/.zprezto/init.zsh
 
-export TERM='screen-256color'
+#export TERM='screen-256color'
 export DOTFILES=$HOME/.dotfiles
 
 # DOTFILES STUFF
