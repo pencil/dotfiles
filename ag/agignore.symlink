@@ -2,3 +2,5 @@ vendor/bundle
 vendor/gems
 Godeps/_workspace
 _tools
+node_modules
+build
