@@ -2,16 +2,9 @@
 alias ls="ls -Gp"
 alias nssh='ssh -o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null'
 alias nscp='scp -o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null'
-alias flush-dns='sudo discoveryutil udnsflushcaches'
 
 # development
-alias git-delete-merged-branches='git branch --merged | grep -v "\*" | grep -v master | xargs -n 1 git branch -d'
-alias jsc='/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Resources/jsc'
-alias ijs='jsc'
-alias iphp='php -a'
-alias rc='rails console'
-alias qq='touch tmp/restart.txt'
-alias b='bundle'
+alias jsc='/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc'
 alias history='history 1'
 
 # ssh wrapper that rename current tmux window to the hostname of the
@@ -41,8 +34,4 @@ ssh() {
   if [[ $renamed == 1 ]]; then
     tmux rename-window "$old_name"
   fi
-}
-
-cdg() {
-  cd $GOPATH/src/$1
 }
