@@ -4,3 +4,5 @@ Godeps/_workspace
 _tools
 node_modules
 build
+out/_next
+*.svg

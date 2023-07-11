@@ -27,6 +27,7 @@ brew 'neovim'
 brew 'netcat'
 brew 'node@16'
 brew 'openssh'
+brew 'oxipng'
 brew 'perl'
 brew 'pssh'
 brew 'pv'
@@ -35,6 +36,7 @@ brew 'randomize-lines'
 brew 'ripgrep'
 brew 'ruby'
 brew 'ssh-copy-id'
+brew 'telnet'
 brew 'tfenv'
 brew 'the_silver_searcher'
 brew 'tmux'
@@ -67,9 +69,7 @@ cask 'kitty'
 cask 'licecap'
 cask 'macdown'
 cask 'obs'
-cask 'sensiblesidebuttons'
 cask 'signal'
-cask 'skype'
 cask 'slack'
 cask 'steam'
 cask 'visual-studio-code'
@@ -82,5 +82,4 @@ mas 'Pages', id: 409201541
 mas 'Pixelmator', id: 407963104
 mas 'The Unarchiver', id: 425424353
 mas 'Tweetbot', id: 557168941
-mas 'Type2Phone', id: 472717129
 #mas 'Xcode', id: 497799835
