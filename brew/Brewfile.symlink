@@ -73,7 +73,7 @@ cask 'slack'
 cask 'steam'
 cask 'visual-studio-code'
 cask 'vlc'
-cask 'yubico-yubikey-personalization'
+cask 'yubico-yubikey-manager'
 #mas 'Deliveries', id: 924726344
 mas 'Divvy', id: 413857545
 mas 'Numbers', id: 409203825
