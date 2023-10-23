@@ -1,9 +1,6 @@
 .DS_Store
 .project
 .metadata
-tmp/**
-tmp/**/*
-*.tmp
 .classpath
 .settings/
 .loadpath

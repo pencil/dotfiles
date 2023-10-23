@@ -55,30 +55,30 @@ cask 'aerial'
 cask 'battle-net'
 cask 'corsair-icue'
 cask 'discord'
-cask 'orbstack'
 cask 'font-meslo-for-powerline'
 cask 'font-powerline-symbols'
 cask 'google-chrome'
 cask 'grandperspective'
 cask 'imageoptim'
 cask 'istat-menus'
-cask 'kaleidoscope'
+#cask 'kaleidoscope'
 cask 'keepingyouawake'
 cask 'kitty'
 cask 'licecap'
 cask 'macdown'
 cask 'obs'
+cask 'orbstack'
 cask 'signal'
 cask 'slack'
 cask 'steam'
 cask 'visual-studio-code'
 cask 'vlc'
 cask 'yubico-yubikey-personalization-gui'
-mas 'Deliveries', id: 924726344
+#mas 'Deliveries', id: 924726344
 mas 'Divvy', id: 413857545
 mas 'Numbers', id: 409203825
 mas 'Pages', id: 409201541
 mas 'Pixelmator', id: 407963104
 mas 'The Unarchiver', id: 425424353
-mas 'Tweetbot', id: 557168941
+#mas 'Tweetbot', id: 557168941
 #mas 'Xcode', id: 497799835
