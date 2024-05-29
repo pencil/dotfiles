@@ -8,3 +8,4 @@
 .rails_generators~
 /.tags
 .tcs-skeletons/
+.venv

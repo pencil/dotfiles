@@ -6,3 +6,4 @@ node_modules
 build
 out/_next
 *.svg
+venv/
