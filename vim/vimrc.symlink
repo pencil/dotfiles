@@ -11,16 +11,17 @@ call plug#begin('~/.vim/plugged')
 
 "" Tools
 Plug 'airblade/vim-gitgutter' " shows a git diff in the gutter (sign column)
-Plug 'rking/ag.vim' " RIP ack
 Plug 'w0rp/ale' " like syntastic, but async
-Plug 'sjl/gundo.vim', { 'on': 'GundoToggle' } " visualizes the undo tree
+Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' } " visualizes the undo tree
 Plug 'tpope/vim-repeat' " enable repeating supported plugin maps with .
 Plug 'tpope/vim-surround' " tool to change and add surroundings in pair
 Plug 'editorconfig/editorconfig-vim' " http://editorconfig.org
 
 "" Navigation
 Plug 'christoomey/vim-tmux-navigator' " easier tmux navigating with Ctrl+h/j/k/l
-Plug 'takac/vim-hardtime' " only allow one directional key per second
+Plug 'ctrlpvim/ctrlp.vim'
+"Plug 'takac/vim-hardtime' " only allow one directional key per second
+Plug 'nvim-tree/nvim-tree.lua'
 
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
@@ -28,6 +29,7 @@ Plug 'nvim-telescope/telescope.nvim', { 'on': 'Telescope' }
 
 "" Automagic
 Plug 'raimondi/delimitMate' " provides insert mode auto-completion for quotes, parens, brackets, etc.
+Plug 'github/copilot.vim' " GitHub Copilot
 
 "" Display
 Plug 'vim-airline/vim-airline' " lean & mean status/tabline for vim that's light as air
@@ -37,6 +39,12 @@ Plug 'ntpeters/vim-better-whitespace' " highlights trailing whitespaces
 Plug 'luochen1990/rainbow' " show diff level of parentheses in diff color
 
 Plug 'chriskempson/vim-tomorrow-theme' " neat theme for vim
+
+"" Language support
+Plug 'williamboman/mason.nvim'
+Plug 'williamboman/mason-lspconfig.nvim'
+Plug 'neovim/nvim-lspconfig'
+Plug 'pmizio/typescript-tools.nvim'
 
 call plug#end()
 
@@ -79,7 +87,7 @@ if has('nvim')
   highlight clear SpellLocal
   highlight SpellLocal guibg=#5ffdff
 
-  let g:python3_host_prog='/Users/ncaspar/projects/py3nvim/bin/python'
+  "let g:python3_host_prog='~/py3nvim/bin/python'
 endif
 
 au BufNewFile,BufRead *.pys set filetype=python
@@ -141,9 +149,8 @@ set undofile
 set undolevels=1000         " How many undos
 set undoreload=10000        " number of lines to save for undo
 
-"" Gundo
-let g:gundo_prefer_python3 = 1
-nnoremap <F6> :GundoToggle<CR>
+"" undotree
+nnoremap <F6> :UndotreeToggle<CR>
 
 set backspace=indent,eol,start
 
@@ -187,9 +194,58 @@ nmap <leader>q :quit<CR>
 
 " ALE
 let g:ale_cpp_cc_options = '-std=c++17 -Wall'
+let g:ale_linters = {
+      \ 'python': ['ruff',],
+      \ 'typescript': ['tslint',],
+      \ 'typescriptreact': ['tslint',],
+      \ 'javascript': ['eslint',],
+      \ 'javascriptreact': ['eslint',],
+      \}
+let g:ale_fixers = {
+      \ 'python': ['ruff', 'ruff_format',],
+      \ 'typescript': ['tslint', 'prettier',],
+      \ 'typescriptreact': ['tslint', 'prettier',],
+      \ 'javascript': ['eslint', 'prettier',],
+      \ 'javascriptreact': ['eslint', 'prettier',],
+      \}
+let g:ale_fix_on_save = 1
+
+" ctrlp
+if executable('rg')
+  set grepprg=rg\ --color=never
+  let g:ctrlp_user_command = 'rg %s --files --color=never --glob ""'
+  let g:ctrlp_use_caching = 0
+elseif executable('ag')
+  set grepprg=ag\ --nogroup\ --nocolor
+  let g:ctrlp_user_command = 'ag %s --nocolor -l --hidden --ignore .git'
+  let g:ctrlp_use_caching = 0
+else
+  let g:ctrlp_clear_cache_on_exit = 0
+endif
 
 " Find files using Telescope command-line sugar.
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
+" LSP
+lua << EOF
+require("mason").setup()
+require("mason-lspconfig").setup {
+  automatic_installation = true,
+  ensure_installed = {
+    "pyright",
+    "tsserver",
+  },
+}
+require("lspconfig").pyright.setup {}
+require("typescript-tools").setup {}
+EOF
+
+nnoremap <F2> :lua vim.lsp.buf.rename()<CR>
+
+" nvim-tree
+lua << EOF
+require("nvim-tree").setup()
+EOF
