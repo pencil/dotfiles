@@ -19,7 +19,7 @@ function arc {
 }
 
 alias jsonpp='underscore print --color'
-alias ssh='TERM=xterm-color ssh'
+#alias ssh='TERM=xterm-color ssh'
 alias xkcdpass='rl -c 4 /usr/share/dict/words | xargs echo'
 alias http_server='python -m SimpleHTTPServer'
 alias urldecode='python -c "import sys, urllib as ul; \
