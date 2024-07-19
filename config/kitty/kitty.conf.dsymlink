@@ -24,7 +24,10 @@
 #:     italic_font      Operator Mono Book Italic
 #:     bold_italic_font Operator Mono Medium Italic
 
-font_family Liga Comic Mono
+#font_family Liga Comic Mono
+#bold_font Liga Comic Mono Bold
+font_family Comic Mono
+bold_font Comic Mono Bold
 font_size 16.0
 modify_font baseline -1
 modify_font cell_height 1.01
