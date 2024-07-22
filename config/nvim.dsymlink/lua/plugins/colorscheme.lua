@@ -1,9 +1,13 @@
 return {
-  { "chriskempson/vim-tomorrow-theme" },
+  { "folke/tokyonight.nvim" },
+  --{ "chriskempson/vim-tomorrow-theme" },
+  --{ "rebelot/kanagawa.nvim" },
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "Tomorrow-Night",
+      colorscheme = "tokyonight-night",
+      --colorscheme = "Tomorrow-Night",
+      --colorscheme = "kanagawa-dragon",
     },
   },
 }
