@@ -26,7 +26,7 @@
 
 #font_family Liga Comic Mono
 #bold_font Liga Comic Mono Bold
-font_family Comic Mono
+font_family Comic Mono Normal
 bold_font Comic Mono Bold
 font_size 16.0
 modify_font baseline -1
