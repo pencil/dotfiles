@@ -25,6 +25,7 @@ bind-key ^D detach-client
 bind-key v split-window -h -c '#{pane_current_path}'
 bind-key V split-window -hf -c '#{pane_current_path}'
 bind-key s split-window -c '#{pane_current_path}'
+bind-key S split-window -f -c '#{pane_current_path}'
 
 # Reload key
 bind-key r source-file ~/.tmux.conf
