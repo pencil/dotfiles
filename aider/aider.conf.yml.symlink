@@ -8,6 +8,8 @@ gitignore: false
 watch-files: true
 auto-commits: false
 
+read: ~/.aider.conventions.md
+
 #dark-mode: true
 user-input-color: "#DDDDDD"
 tool-error-color: "#FF3333"
