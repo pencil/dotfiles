@@ -8,21 +8,48 @@ HOME = ENV['HOME']
 
 Dir.chdir(DOTFILES)
 
-# Symlink *.symlink files
-Dir.glob(['**/*.symlink', '**/*.dsymlink']).each do |f|
-  dir, base = Pathname.new(f).split
-  name_without_symlink = base.basename('.*')
+puts "Creating symlinks in #{HOME} from #{DOTFILES}"
+
+# Use non-recursive glob patterns to find files/dirs ending in .symlink or .dsymlink
+# Handles files/dirs in the root (e.g., vimrc.symlink) and one level deep (e.g., config/nvim.dsymlink)
+Dir.glob(['*.symlink', '*.dsymlink', '*/*.symlink', '*/*.dsymlink']).sort.each do |f|
+  pathname = Pathname.new(f)
+  dir = pathname.dirname      # e.g., Pathname("config") or Pathname(".")
+  base = pathname.basename    # e.g., Pathname("nvim.dsymlink") or Pathname("bash_profile.symlink")
+  name_without_symlink = base.basename('.*') # e.g., Pathname("nvim") or Pathname("bash_profile")
+
+  # Absolute path to source file/dir in dotfiles repo
+  src = File.join(DOTFILES, f)
+
   if base.extname == '.dsymlink'
-    # symlink in hidden directory
-    fulldir = File.join(HOME, ".#{dir}")
-    FileUtils.mkdir_p fulldir
-    dst = File.join(fulldir, name_without_symlink)
-  else
-    # symlink for hidden file
-    dst = File.join(HOME, ".#{name_without_symlink}")
+    # Directory symlink: target is ~/.config/nvim or ~/.mydir
+    if dir.to_s == '.'
+      # Source is in root: mydir.dsymlink -> Target: ~/.mydir
+      target_parent_dir = HOME
+      target_name = ".#{name_without_symlink}"
+    else
+      # Source is in subdir: config/nvim.dsymlink -> Target: ~/.config/nvim
+      target_parent_dir = File.join(HOME, ".#{dir}") # ~/.config
+      target_name = name_without_symlink.to_s       # nvim
+      FileUtils.mkdir_p target_parent_dir unless Dir.exist?(target_parent_dir)
+    end
+    dst = File.join(target_parent_dir, target_name)
+  else # .symlink
+    # File symlink: target is ~/.bash_profile or ~/.vimrc
+    # All .symlink files are linked directly into HOME, prefixed with '.'
+    target_parent_dir = HOME
+    target_name = ".#{name_without_symlink}"
+    dst = File.join(target_parent_dir, target_name)
   end
 
-  src = File.join(DOTFILES, f)
-  puts "Symlink #{dst}"
+  # Skip if the correct symlink already exists
+  if File.symlink?(dst) && File.readlink(dst) == src
+    # puts "Skipping existing symlink: #{dst}" # Uncomment for verbose output
+    next
+  end
+
+  puts "Symlinking #{dst} -> #{src}"
   FileUtils.ln_sf(src, dst)
 end
+
+puts "Dotfiles setup complete."
