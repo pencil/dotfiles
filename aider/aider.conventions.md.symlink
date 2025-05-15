@@ -1,1 +1,2 @@
-- Only add comments when they actually improve understanding.
+- Do not add comments explaining your actions
+- Only add comments when they improve the understanding of the code
