@@ -1,2 +1,3 @@
-- Do not add comments explaining your actions
-- Only add comments when they improve the understanding of the code
+- URGENT: Avoid writing comments unless they are necessary to understand unconventional code. Remove unnecessary comments when updating code.
+- Favor smaller diffs because they may fail to apply. For example, 2 diff representing the 2 segments of code instead of reproducing all the code between the 2 segments in 1 diff.
+- We prefer conservative changes that maintain our production features.
