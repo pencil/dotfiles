@@ -1,6 +1,4 @@
 cask_args appdir: '/Applications'
-tap 'homebrew/cask-fonts'
-tap 'homebrew/cask-versions'
 brew 'ack'
 brew 'awscli'
 brew 'clang-format'
