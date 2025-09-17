@@ -2705,6 +2705,8 @@ close_on_child_death no
 map alt+left send_text all \x1bb
 map alt+right send_text all \x1bf
 
+map shift+enter send_text all \eOM
+
 #: }}}
 
 #: }}}
