@@ -10,9 +10,10 @@ Dir.chdir(DOTFILES)
 
 puts "Creating symlinks in #{HOME} from #{DOTFILES}"
 
-# Use non-recursive glob patterns to find files/dirs ending in .symlink or .dsymlink
-# Handles files/dirs in the root (e.g., vimrc.symlink) and one level deep (e.g., config/nvim.dsymlink)
-Dir.glob(['*.symlink', '*.dsymlink', '*/*.symlink', '*/*.dsymlink']).sort.each do |f|
+# Recursively locate .symlink/.dsymlink entries anywhere in the repository
+Dir.glob('**/*.{symlink,dsymlink}', File::FNM_DOTMATCH).sort.each do |f|
+  next if f.start_with?('.git/') || f.include?('/.git/')
+
   pathname = Pathname.new(f)
   dir = pathname.dirname      # e.g., Pathname("config") or Pathname(".")
   base = pathname.basename    # e.g., Pathname("nvim.dsymlink") or Pathname("bash_profile.symlink")
