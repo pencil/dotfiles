@@ -36,11 +36,51 @@ Dir.glob('**/*.{symlink,dsymlink}', File::FNM_DOTMATCH).sort.each do |f|
     end
     dst = File.join(target_parent_dir, target_name)
   else # .symlink
-    # File symlink: target is ~/.bash_profile or ~/.vimrc
-    # All .symlink files are linked directly into HOME, prefixed with '.'
-    target_parent_dir = HOME
-    target_name = ".#{name_without_symlink}"
-    dst = File.join(target_parent_dir, target_name)
+    # File symlink: default target is ~/.bash_profile or ~/.vimrc
+    # Link directly into HOME, prefixed with '.'
+    parent_segments = pathname.each_filename.to_a[0...-1]
+    target_path = nil
+
+    parent_segments.each do |segment|
+      next if segment == '.'
+
+      if segment.end_with?('.target')
+        base_segment = segment.sub(/\.target\z/, '')
+
+        if base_segment.empty?
+          warn "Skipping target override with empty name for #{f}"
+          target_path = nil
+          break
+        end
+
+        if target_path.nil?
+          target_path =
+            if base_segment.start_with?('/')
+              base_segment
+            elsif base_segment.start_with?('~')
+              File.expand_path(base_segment, HOME)
+            elsif base_segment.start_with?('.')
+              File.join(HOME, base_segment)
+            else
+              File.join(HOME, ".#{base_segment}")
+            end
+        else
+          target_path = File.join(target_path, base_segment)
+        end
+      elsif target_path
+        target_path = File.join(target_path, segment)
+      end
+    end
+
+    if target_path
+      target_parent_dir = target_path
+      FileUtils.mkdir_p(target_parent_dir) unless Dir.exist?(target_parent_dir)
+      dst = File.join(target_parent_dir, name_without_symlink.to_s)
+    else
+      target_parent_dir = HOME
+      target_name = ".#{name_without_symlink}"
+      dst = File.join(target_parent_dir, target_name)
+    end
   end
 
   # Skip if the correct symlink already exists
