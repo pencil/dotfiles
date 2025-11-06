@@ -30,22 +30,41 @@ def main() -> int:
             print(f"not sending a push notification for: {notification_type}")
             return 0
 
-    subprocess.check_output(
-        [
-            "terminal-notifier",
-            "-title",
-            title,
-            "-message",
-            message,
-            "-group",
-            "codex",
-            "-ignoreDnD",
-            "-activate",
-            "net.kovidgoyal.kitty",
-            "-contentImage",
-            "/Applications/ChatGPT.app/Contents/Resources/AppIcon.icns",
-        ]
-    )
+    notifier_args = [
+        "terminal-notifier",
+        "-title",
+        title,
+        "-message",
+        message,
+        "-group",
+        "codex",
+        "-ignoreDnD",
+        "-activate",
+        "net.kovidgoyal.kitty",
+        "-contentImage",
+        "/Applications/ChatGPT.app/Contents/Resources/AppIcon.icns",
+    ]
+
+    try:
+        subprocess.run(
+            notifier_args,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
+    except Exception:
+        fallback_title = title or "Codex"
+        fallback_message = message or fallback_title
+        apple_script = (
+            f"display notification {json.dumps(fallback_message)} "
+            f"with title {json.dumps(fallback_title)}"
+        )
+        subprocess.run(
+            ["osascript", "-e", apple_script],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
 
     sound_path = os.path.expanduser("~/.codex/jobs_done.mp3")
     if os.path.exists(sound_path):
@@ -63,4 +82,9 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except Exception as exc:  # noqa: BLE001 - ensure a single-line error without a traceback
+        error_text = " ".join(str(exc).split()) or exc.__class__.__name__
+        print(f"notify.py error: {error_text}", file=sys.stderr)
+        sys.exit(1)
