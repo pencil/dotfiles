@@ -1464,7 +1464,7 @@ shell /opt/homebrew/bin/zsh --login -i -c 'atmux'
 #: interactive mode and reads its startup rc files. Environment
 #: variables are expanded in this setting.
 
-# editor .
+editor nvim
 
 #: The terminal based text editor (such as vim or nano) to use when
 #: editing the kitty config file or similar tasks.
