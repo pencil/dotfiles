@@ -91,10 +91,10 @@ def _notify_with_osascript(title: str, message: str) -> None:
             )
         except Exception as second_error:
             combined_error = f"{first_error}; {second_error}"
-            print(
-                f"notify.py warning: osascript fallback failed: {combined_error}",
-                file=sys.stderr,
-            )
+            #print(
+            #    f"notify.py warning: osascript fallback failed: {combined_error}",
+            #    file=sys.stderr,
+            #)
 
 
 def main() -> int:
@@ -158,6 +158,6 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except Exception as exc:  # noqa: BLE001 - ensure a single-line error without a traceback
-        error_text = " ".join(str(exc).split()) or exc.__class__.__name__
-        print(f"notify.py error: {error_text}", file=sys.stderr)
-        sys.exit(1)
+        #error_text = " ".join(str(exc).split()) or exc.__class__.__name__
+        #print(f"notify.py error: {error_text}", file=sys.stderr)
+        sys.exit(0)

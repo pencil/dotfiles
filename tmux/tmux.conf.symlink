@@ -27,6 +27,8 @@ bind-key V split-window -hf -c '#{pane_current_path}'
 bind-key s split-window -c '#{pane_current_path}'
 bind-key S split-window -f -c '#{pane_current_path}'
 
+bind-key M swap-pane
+
 # Reload key
 bind-key r source-file ~/.tmux.conf
 

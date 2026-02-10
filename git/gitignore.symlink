@@ -10,3 +10,4 @@
 .tcs-skeletons/
 .venv
 .aider*
+/.claude/settings.local.json
