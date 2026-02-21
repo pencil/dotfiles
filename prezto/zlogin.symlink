@@ -4,6 +4,7 @@
 # Authors:
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
+setopt no_bg_nice
 
 # Execute code that does not affect the current session in the background.
 {
