@@ -27,3 +27,5 @@ unalias rm
 unsetopt SHARE_HISTORY
 
 #test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
