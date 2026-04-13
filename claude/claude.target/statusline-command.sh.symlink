@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Claude Code status line — minimal, sleek
+# Shows: context bar · model · effort
+
+input=$(cat)
+
+# ── Context window progress bar ──────────────────────────────────────────────
+used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+
+if [ -n "$used" ]; then
+  used_int=$(printf '%.0f' "$used")
+  bar_width=10
+
+  # Half-character precision
+  complete_halves=$(( used_int * bar_width * 2 / 100 ))
+  bar_count=$(( complete_halves / 2 ))
+  half_bar=$(( complete_halves % 2 ))
+
+  # Color: green -> yellow -> red as context fills up
+  if   [ "$used_int" -lt 50 ]; then color="\033[32m"   # green
+  elif [ "$used_int" -lt 80 ]; then color="\033[33m"   # yellow
+  else                               color="\033[31m"   # red
+  fi
+  dim="\033[2;90m"
+  rst="\033[0m"
+
+  bar=""
+  # Filled portion
+  if [ "$bar_count" -gt 0 ]; then
+    filled=$(printf "%${bar_count}s" | tr ' ' '━')
+    bar="${bar}$(printf "${color}${filled}${rst}")"
+  fi
+  # Half bar cap
+  if [ "$half_bar" -eq 1 ]; then
+    bar="${bar}$(printf "${color}╸${rst}")"
+  fi
+  # Remaining
+  remaining=$(( bar_width - bar_count - half_bar ))
+  if [ "$remaining" -gt 0 ]; then
+    if [ "$half_bar" -eq 0 ] && [ "$bar_count" -gt 0 ]; then
+      empty=$(printf "%$(( remaining - 1 ))s" | tr ' ' '━')
+      bar="${bar}$(printf "${dim}╺${empty}${rst}")"
+    else
+      empty=$(printf "%${remaining}s" | tr ' ' '━')
+      bar="${bar}$(printf "${dim}${empty}${rst}")"
+    fi
+  fi
+
+  ctx_part=$(printf "%s${color}%3d%%${rst}" "$bar" "$used_int")
+else
+  ctx_part=$(printf "\033[2;90m━━━━━━━━━━  –%%\033[0m")
+fi
+
+# ── Model ────────────────────────────────────────────────────────────────────
+model=$(echo "$input" | jq -r '.model.display_name // ""')
+model=$(echo "$model" | sed 's/ (.*//')
+
+# ── Effort ───────────────────────────────────────────────────────────────────
+# Effort isn't in the status line JSON — read from settings file
+effort=$(jq -r '.effortLevel // ""' "$HOME/.claude/settings.json" 2>/dev/null)
+
+if   [ "$effort" = "high" ];   then effort_str="◆◆◆"
+elif [ "$effort" = "medium" ]; then effort_str="◆◆◇"
+elif [ "$effort" = "low" ];    then effort_str="◆◇◇"
+else                                effort_str="   "
+fi
+
+# ── Compose ──────────────────────────────────────────────────────────────────
+sep=$(printf "\033[2m·\033[0m")
+
+printf "%s  %s  %s  %s  %s\n" \
+  "$ctx_part" \
+  "$sep" \
+  "$(printf '\033[37m%s\033[0m' "$model")" \
+  "$sep" \
+  "$(printf '\033[35m%s\033[0m' "$effort_str")"
