@@ -2,6 +2,13 @@
 # Claude Code status line — minimal, sleek
 # Shows: context bar · model · effort
 
+# Ensure UTF-8 so Unicode glyphs render in any locale (C.UTF-8 is
+# available on virtually every modern Linux/macOS system).
+case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in
+  *.[Uu][Tt][Ff][-]8*|*.[Uu][Tt][Ff]8*) ;;
+  *) export LC_CTYPE=C.UTF-8 ;;
+esac
+
 input=$(cat)
 
 # ── Context window progress bar ──────────────────────────────────────────────
@@ -24,10 +31,13 @@ if [ -n "$used" ]; then
   dim="\033[2;90m"
   rst="\033[0m"
 
+  # repeat '━' N times (tr mangles multi-byte chars)
+  rep() { local s=''; local i; for ((i=0; i<$1; i++)); do s+='━'; done; printf '%s' "$s"; }
+
   bar=""
   # Filled portion
   if [ "$bar_count" -gt 0 ]; then
-    filled=$(printf "%${bar_count}s" | tr ' ' '━')
+    filled=$(rep "$bar_count")
     bar="${bar}$(printf "${color}${filled}${rst}")"
   fi
   # Half bar cap
@@ -38,10 +48,10 @@ if [ -n "$used" ]; then
   remaining=$(( bar_width - bar_count - half_bar ))
   if [ "$remaining" -gt 0 ]; then
     if [ "$half_bar" -eq 0 ] && [ "$bar_count" -gt 0 ]; then
-      empty=$(printf "%$(( remaining - 1 ))s" | tr ' ' '━')
+      empty=$(rep $(( remaining - 1 )))
       bar="${bar}$(printf "${dim}╺${empty}${rst}")"
     else
-      empty=$(printf "%${remaining}s" | tr ' ' '━')
+      empty=$(rep "$remaining")
       bar="${bar}$(printf "${dim}${empty}${rst}")"
     fi
   fi
