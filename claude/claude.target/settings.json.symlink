@@ -33,7 +33,8 @@
   },
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
-    "sentry@claude-plugins-official": true
+    "sentry@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "superpowers-marketplace": {
@@ -43,19 +44,20 @@
       }
     }
   },
+  "feedbackSurveyRate": 0,
   "spinnerVerbs": {
     "mode": "replace",
     "verbs": [
       "Thinking"
     ]
   },
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "fastMode": true,
   "autoUpdatesChannel": "stable",
   "minimumVersion": "2.1.89",
-  "voiceEnabled": true,
   "voice": {
     "enabled": true,
     "mode": "hold"
-  }
+  },
+  "voiceEnabled": true
 }

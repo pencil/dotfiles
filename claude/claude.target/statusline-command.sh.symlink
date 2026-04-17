@@ -59,10 +59,11 @@ model=$(echo "$model" | sed 's/ (.*//')
 # Effort isn't in the status line JSON — read from settings file
 effort=$(jq -r '.effortLevel // ""' "$HOME/.claude/settings.json" 2>/dev/null)
 
-if   [ "$effort" = "high" ];   then effort_str="◆◆◆"
-elif [ "$effort" = "medium" ]; then effort_str="◆◆◇"
-elif [ "$effort" = "low" ];    then effort_str="◆◇◇"
-else                                effort_str="   "
+if   [ "$effort" = "xhigh" ];  then effort_str="◆◆◆◆"
+elif [ "$effort" = "high" ];   then effort_str="◆◆◆◇"
+elif [ "$effort" = "medium" ]; then effort_str="◆◆◇◇"
+elif [ "$effort" = "low" ];    then effort_str="◆◇◇◇"
+else                                effort_str="    "
 fi
 
 # ── Compose ──────────────────────────────────────────────────────────────────
