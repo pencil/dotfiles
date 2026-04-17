@@ -3,6 +3,9 @@
     "commit": "",
     "pr": ""
   },
+  "permissions": {
+    "defaultMode": "auto"
+  },
   "hooks": {
     "Stop": [
       {
@@ -55,9 +58,10 @@
   "fastMode": true,
   "autoUpdatesChannel": "stable",
   "minimumVersion": "2.1.89",
+  "voiceEnabled": true,
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
-  "voiceEnabled": true
+  "skipAutoPermissionPrompt": true
 }
