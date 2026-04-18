@@ -79,6 +79,7 @@ set -g status-left ''
 setw -g mode-keys vi
 
 set -s set-clipboard on
+set -g allow-passthrough on
 
 # Setup 'v' to begin selection as in Vim
 bind-key -Tcopy-mode-vi 'v' send -X begin-selection
