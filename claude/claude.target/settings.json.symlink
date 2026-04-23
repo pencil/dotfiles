@@ -53,12 +53,12 @@
       "Thinking"
     ]
   },
-  "autoUpdatesChannel": "stable",
-  "minimumVersion": "2.1.89",
-  "voiceEnabled": true,
+  "autoUpdatesChannel": "latest",
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true,
+  "effortLevel": "xhigh"
 }
