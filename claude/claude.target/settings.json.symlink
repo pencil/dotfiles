@@ -53,12 +53,15 @@
       "Thinking"
     ]
   },
+  "effortLevel": "xhigh",
   "autoUpdatesChannel": "latest",
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
+  "theme": "dark-daltonized",
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true,
-  "effortLevel": "xhigh"
+  "voiceEnabled": true
 }
