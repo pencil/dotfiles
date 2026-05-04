@@ -4,3 +4,5 @@ if [[ -n "$CLAUDECODE" ]]; then
     unfunction $fn 2>/dev/null
   done
 fi
+
+export CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1
