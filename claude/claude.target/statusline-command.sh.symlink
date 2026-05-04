@@ -66,15 +66,20 @@ model=$(echo "$input" | jq -r '.model.display_name // ""')
 model=$(echo "$model" | sed 's/ (.*//')
 
 # ── Effort ───────────────────────────────────────────────────────────────────
-# Effort isn't in the status line JSON — read from settings file
-effort=$(jq -r '.effortLevel // ""' "$HOME/.claude/settings.json" 2>/dev/null)
-
-if   [ "$effort" = "xhigh" ];  then effort_str="◆◆◆◆"
-elif [ "$effort" = "high" ];   then effort_str="◆◆◆◇"
-elif [ "$effort" = "medium" ]; then effort_str="◆◆◇◇"
-elif [ "$effort" = "low" ];    then effort_str="◆◇◇◇"
-else                                effort_str="    "
+effort=$(echo "$input" | jq -r '.effort.level // ""')
+if [ -z "$effort" ]; then
+  effort=$(jq -r '.effortLevel // ""' "$HOME/.claude/settings.json" 2>/dev/null)
 fi
+
+effort_color="\033[35m"  # magenta for everything except max
+if   [ "$effort" = "max" ];    then effort_glyphs="◆◆◆◆🔥"; effort_color="\033[91m"  # bright red
+elif [ "$effort" = "xhigh" ];  then effort_glyphs="◆◆◆◆"
+elif [ "$effort" = "high" ];   then effort_glyphs="◆◆◆◇"
+elif [ "$effort" = "medium" ]; then effort_glyphs="◆◆◇◇"
+elif [ "$effort" = "low" ];    then effort_glyphs="◆◇◇◇"
+else                                effort_glyphs="    "
+fi
+effort_str=$(printf "${effort_color}%s\033[0m" "$effort_glyphs")
 
 # ── tmux window rename ───────────────────────────────────────────────────────
 # Sync the Claude session name (set via /rename) to the tmux window name.
@@ -94,4 +99,4 @@ printf "%s  %s  %s  %s  %s\n" \
   "$sep" \
   "$(printf '\033[37m%s\033[0m' "$model")" \
   "$sep" \
-  "$(printf '\033[35m%s\033[0m' "$effort_str")"
+  "$effort_str"
