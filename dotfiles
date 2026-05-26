@@ -94,8 +94,16 @@ Dir.glob('**/*.{symlink,dsymlink}', File::FNM_DOTMATCH).sort.each do |f|
 end
 
 if system('command -v pre-commit > /dev/null 2>&1')
-  puts "Installing pre-commit git hook"
-  system('pre-commit install')
+  git_dir = `git rev-parse --git-dir 2>/dev/null`.strip
+  git_common = `git rev-parse --git-common-dir 2>/dev/null`.strip
+  if !git_dir.empty? && git_dir != git_common
+    # In a linked worktree: pre-commit would touch the shared core.hooksPath
+    # and then refuse on the next run.
+    puts "Skipping pre-commit install (inside a git worktree)"
+  else
+    puts "Installing pre-commit git hook"
+    system('pre-commit install')
+  end
 end
 
 puts "Dotfiles setup complete."
