@@ -93,4 +93,9 @@ Dir.glob('**/*.{symlink,dsymlink}', File::FNM_DOTMATCH).sort.each do |f|
   FileUtils.ln_sf(src, dst)
 end
 
+if system('command -v pre-commit > /dev/null 2>&1')
+  puts "Installing pre-commit git hook"
+  system('pre-commit install')
+end
+
 puts "Dotfiles setup complete."
