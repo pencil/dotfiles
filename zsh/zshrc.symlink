@@ -11,13 +11,19 @@ for file in $config_files; do
 done
 unset config_files file
 
-# Plugin manager: antidote
+# Plugin manager: antidote (static bundle mode for fast startup and to avoid
+# antidote capturing git stderr into the generated bundle).
 if [[ -r "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh" ]]; then
   source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh"
 elif [[ -r "$HOME/.antidote/antidote.zsh" ]]; then
   source "$HOME/.antidote/antidote.zsh"
 fi
-type antidote >/dev/null && antidote load
+if type antidote >/dev/null; then
+  if [[ ! -r ~/.zsh_plugins.zsh || ~/.zsh_plugins.txt -nt ~/.zsh_plugins.zsh ]]; then
+    antidote bundle <~/.zsh_plugins.txt >|~/.zsh_plugins.zsh 2>/dev/null
+  fi
+  source ~/.zsh_plugins.zsh
+fi
 
 # Prompt
 command -v starship >/dev/null && eval "$(starship init zsh)"

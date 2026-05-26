@@ -1,17 +1,25 @@
-# Fast compinit replacement (prezto: completion module)
+# Plugins pinned to specific refs (tag where available, SHA otherwise).
+# To bump: `git ls-remote --tags https://github.com/<repo>`, swap the ref,
+# then `antidote update && exec zsh`.
+
+# Fast compinit replacement (prezto: completion module).
+# Upstream doesn't tag releases and antidote can't pin to a SHA (it uses
+# `git clone -b`), so this tracks the default branch. Small repo, audit on update.
 mattmc3/ez-compinit
 
 # Extra completion definitions
-zsh-users/zsh-completions kind:fpath path:src
+zsh-users/zsh-completions kind:fpath path:src branch:0.36.0
 
 # Inline suggestions from history
-zsh-users/zsh-autosuggestions
+zsh-users/zsh-autosuggestions branch:v0.7.1
 
 # Up/Down arrow searches history for matching prefix (prezto: history-substring-search)
-zsh-users/zsh-history-substring-search
+zsh-users/zsh-history-substring-search branch:v1.1.0
 
-# Git aliases comparable to prezto's git module (g, gst, gco, gb, etc.)
+# Git aliases comparable to prezto's git module (g, gst, gco, gb, etc.).
+# ohmyzsh ships no tags antidote can pin to, but `path:plugins/git` restricts
+# what gets loaded to just plugins/git/git.plugin.zsh (~430 lines of aliases).
 ohmyzsh/ohmyzsh path:plugins/git
 
 # Syntax highlighting on the command line (prezto: syntax-highlighting). Must be last.
-zdharma-continuum/fast-syntax-highlighting
+zdharma-continuum/fast-syntax-highlighting branch:v1.56
