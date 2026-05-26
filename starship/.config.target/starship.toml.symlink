@@ -1,0 +1,42 @@
+add_newline = false
+
+format = """[$directory](cyan)$character"""
+right_format = """${custom.git_clean}${custom.git_dirty}${custom.git_time}$git_branch"""
+
+[directory]
+style = "cyan"
+truncation_length = 0
+truncate_to_repo = false
+format = "\\[[$path]($style)\\]"
+
+[character]
+success_symbol = "[\\$ ](green)"
+error_symbol = "[\\$ ](red)"
+
+[git_branch]
+format = "[$branch]($style)"
+style = "green"
+
+[git_status]
+disabled = true
+
+[custom.git_clean]
+description = "Green ✓ when the working tree is clean"
+when = "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && [ -z \"$(git status --porcelain 2>/dev/null)\" ]"
+command = "printf '✓'"
+format = "[$output]($style) "
+style = "green"
+
+[custom.git_dirty]
+description = "Red ✗ when the working tree has changes"
+when = "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && [ -n \"$(git status --porcelain 2>/dev/null)\" ]"
+command = "printf '✗'"
+format = "[$output]($style) "
+style = "red"
+
+[custom.git_time]
+description = "Compact time since last commit (e.g. 3h, 2d)"
+when = "git rev-parse --is-inside-work-tree >/dev/null 2>&1"
+command = "git log -1 --pretty=format:'%ar' 2>/dev/null | sed 's/\\([0-9]*\\) \\(.\\).*/\\1\\2/'"
+format = "[$output]($style) "
+style = "green"

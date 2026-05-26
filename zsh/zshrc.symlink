@@ -1,31 +1,28 @@
-source ~/.zprezto/init.zsh
+: ${DOTFILES:=$HOME/.dotfiles}
+export DOTFILES
 
-#export TERM='screen-256color'
-export DOTFILES=$HOME/.dotfiles
+# Private overrides not checked in
+[[ -f ~/.localrc ]] && source ~/.localrc
 
-# DOTFILES STUFF
-# use .localrc for SUPER SECRET CRAP that you don't
-# want in your public, versioned repo.
-if [[ -a ~/.localrc ]]
-then
-  source ~/.localrc
-fi
-
-# typeset -U config_files
+# Auto-source per-tool config snippets (history opts, env vars, aliases, etc.)
 config_files=($DOTFILES/**/*.zsh)
-
-# load the path files
-for file in ${config_files}
-do
+for file in $config_files; do
   source $file
 done
+unset config_files file
 
-# I know what I'm doing
-unalias rm
+# Plugin manager: antidote
+if [[ -r "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh" ]]; then
+  source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh"
+elif [[ -r "$HOME/.antidote/antidote.zsh" ]]; then
+  source "$HOME/.antidote/antidote.zsh"
+fi
+type antidote >/dev/null && antidote load
+
+# Prompt
+command -v starship >/dev/null && eval "$(starship init zsh)"
 
 # Sharing is caring... I don't care!
 unsetopt SHARE_HISTORY
-
-#test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
