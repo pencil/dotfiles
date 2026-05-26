@@ -89,6 +89,12 @@ Dir.glob('**/*.{symlink,dsymlink}', File::FNM_DOTMATCH).sort.each do |f|
     next
   end
 
+  # If dst is an existing symlink (to a different target), unlink it first.
+  # Otherwise `ln -sf` follows the symlink when it points at a directory and
+  # creates the new link *inside* that directory — silently producing nested
+  # `nvim.dsymlink/nvim.dsymlink` style turds.
+  File.unlink(dst) if File.symlink?(dst)
+
   puts "Symlinking #{dst} -> #{src}"
   FileUtils.ln_sf(src, dst)
 end
