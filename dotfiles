@@ -42,6 +42,16 @@ fi
 # `mkdir <pkg>/<dotfile path>` and re-running this script — no edit needed here.
 stow --target="$HOME" --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --restow */
 
+# On systems where /usr/bin/dd is the Rust uutils rewrite (e.g. Ubuntu 25),
+# `dd iflag=nonblock` blocks on tty reads anyway, which breaks fzf-tab. If GNU
+# coreutils is also installed as gnudd, expose it as ~/.local/bin/gdd so
+# fzf-tab picks it up via its `gdd` lookup.
+if [[ -x /usr/bin/gnudd && ! -e "$HOME/.local/bin/gdd" ]]; then
+  mkdir -p "$HOME/.local/bin"
+  ln -s /usr/bin/gnudd "$HOME/.local/bin/gdd"
+  echo "Symlinked $HOME/.local/bin/gdd -> /usr/bin/gnudd (works around uutils dd)"
+fi
+
 if command -v pre-commit >/dev/null; then
   git_dir=$(git rev-parse --git-dir 2>/dev/null || true)
   git_common=$(git rev-parse --git-common-dir 2>/dev/null || true)
