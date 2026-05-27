@@ -40,7 +40,7 @@ fi
 # only contain those don't link the snippet itself into $HOME.
 # */ expands to every non-hidden top-level dir, so adding a new package is just
 # `mkdir <pkg>/<dotfile path>` and re-running this script — no edit needed here.
-stow --target="$HOME" --no-folding --ignore='\.zsh$' --restow */
+stow --target="$HOME" --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --restow */
 
 if command -v pre-commit >/dev/null; then
   git_dir=$(git rev-parse --git-dir 2>/dev/null || true)
