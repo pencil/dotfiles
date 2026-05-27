@@ -12,6 +12,11 @@ mattmc3/ez-compinit pin:5c9b6da88a463573e26e6846ff164026640ef2f6
 # Extra completion definitions — was at tag 0.36.0
 zsh-users/zsh-completions kind:fpath path:src pin:28c5bdcaf81bb89e56d0df8267d822c3b8aed9e0
 
+# fzf-driven tab completion menu (must load after compinit but before plugins
+# that wrap widgets like zsh-autosuggestions / fast-syntax-highlighting).
+# Requires the `fzf` binary on PATH. Was at tag v1.3.0.
+Aloxaf/fzf-tab pin:d7e0234614dbe5369fdd760907d12c0e05a4dccc
+
 # Inline suggestions from history — was at tag v0.7.1
 zsh-users/zsh-autosuggestions pin:e52ee8ca55bcc56a17c828767a3f98f22a68d4eb
 
