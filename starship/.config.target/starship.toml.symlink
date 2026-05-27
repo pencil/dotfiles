@@ -1,7 +1,7 @@
 add_newline = false
 
 format = """[$directory](cyan)$character"""
-right_format = """${custom.git_clean}${custom.git_dirty}${custom.git_time}$git_branch"""
+right_format = """${custom.git_state}${custom.git_time}$git_branch"""
 
 [directory]
 style = "cyan"
@@ -21,19 +21,11 @@ style = "green"
 [git_status]
 disabled = true
 
-[custom.git_clean]
-description = "Green ✓ when the working tree is clean"
-when = "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && [ -z \"$(git status --porcelain 2>/dev/null)\" ]"
-command = "printf '✓'"
-format = "[$output]($style) "
-style = "green"
-
-[custom.git_dirty]
-description = "Red ✗ when the working tree has changes"
-when = "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && [ -n \"$(git status --porcelain 2>/dev/null)\" ]"
-command = "printf '✗'"
-format = "[$output]($style) "
-style = "red"
+[custom.git_state]
+description = "Green ✓ for clean working tree, red ✗ for dirty"
+when = "git rev-parse --is-inside-work-tree >/dev/null 2>&1"
+command = '[ -z "$(git status --porcelain 2>/dev/null)" ] && printf "\033[32m✓\033[0m" || printf "\033[31m✗\033[0m"'
+format = "$output "
 
 [custom.git_time]
 description = "Compact time since last commit (e.g. 3h, 2d)"
