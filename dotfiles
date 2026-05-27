@@ -20,12 +20,18 @@ fi
 
 if [[ "${1:-}" == "--clean" ]]; then
   echo "Removing pre-existing symlinks under \$HOME that point into the dotfiles repo."
-  while IFS= read -r -d '' link; do
-    target=$(readlink "$link" 2>/dev/null) || continue
+  # Walk each package and check only the destinations it would stow, instead
+  # of scanning all of $HOME. Skips *.zsh (snippets aren't stowed anyway).
+  while IFS= read -r -d '' src; do
+    rel=${src#./}
+    rel=${rel#*/}                            # drop the package prefix
+    dst=$HOME/$rel
+    [[ -L "$dst" ]] || continue
+    target=$(readlink "$dst" 2>/dev/null) || continue
     case "$target" in
-      *.dotfiles/*|*.dotfiles) rm -f "$link" ;;
+      *.dotfiles/*|*.dotfiles) rm -f "$dst" ;;
     esac
-  done < <(find "$HOME" -maxdepth 8 -type l -print0 2>/dev/null)
+  done < <(find ./*/ -type f ! -name '*.zsh' -print0 2>/dev/null)
 fi
 
 # --no-folding stops stow from collapsing intermediate dirs (e.g. ~/.config)
