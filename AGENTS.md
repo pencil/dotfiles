@@ -27,7 +27,8 @@
 | `macos/` | macOS system defaults script (`.macos`) |
 
 ## Build, Test, and Development Commands
-- `./dotfiles` runs `stow --no-folding --ignore='\.zsh$' */` to recreate every symlink in `$HOME`. Idempotent; safe to rerun.
+- `./dotfiles` runs `stow --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --restow */` to recreate every symlink in `$HOME`. Idempotent; safe to rerun. Stow's `--restow` cleanly absorbs file/package renames because it recognizes any symlink whose target is inside this repo as its own.
+- `./dotfiles --clean` is a one-shot migration aid: only needed the first time on a machine that still has symlinks from the previous (Ruby) script. After that, plain `./dotfiles` is all you need.
 - `brew bundle --file=~/.Brewfile` installs or updates formulae, casks, and App Store apps; run `brew bundle cleanup --file=~/.Brewfile` before pruning.
 - `nvim --headless "+Lazy sync" "+qa"` keeps Lua plugin declarations and the lock file aligned after editing `nvim/.config/nvim/`.
 - `zsh -n path/to/file.zsh` quickly parses shell scripts for syntax errors before sourcing them in a login shell.
