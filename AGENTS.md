@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Each top-level directory is a **GNU Stow package**. Its internal layout mirrors the destination relative to `$HOME` — e.g. `zsh/.zshrc` → `~/.zshrc`, `config/.config/starship.toml` → `~/.config/starship.toml`, `claude/.claude/settings.json` → `~/.claude/settings.json`.
+- Each top-level directory is a **GNU Stow package**. Its internal layout mirrors the destination relative to `$HOME` — e.g. `zsh/.zshrc` → `~/.zshrc`, `starship/.config/starship.toml` → `~/.config/starship.toml`, `claude/.claude/settings.json` → `~/.claude/settings.json`.
 - `./dotfiles` runs `stow */` so adding a new tool is just `mkdir <tool>/<path-under-$HOME>` and rerunning — no script edits.
 - Each `*.zsh` file in any directory is auto-sourced by `zsh/.zshrc`, which globs `$DOTFILES/**/*.zsh`. This is how tool-specific env vars, aliases, and PATH entries get loaded (e.g., `go/path.zsh`, `nvm/nvm.zsh`, `mise/mise.zsh`). `./dotfiles` passes `--ignore='\.zsh$'` to stow so these snippets don't get linked into `$HOME`.
 
@@ -12,7 +12,9 @@
 | `bash/` | Bash fallback (`.bash_profile`, `.inputrc`) |
 | `system/` | Auto-sourced env, aliases, PATH snippets (not stowed) |
 | `vim/` | Legacy Vim config (`.vimrc`) |
-| `config/` | Everything under `~/.config/` — alacritty, ghostty, kitty, nvim, starship |
+| `nvim/` | Neovim LazyVim config (under `.config/nvim/`) |
+| `alacritty/`, `ghostty/`, `kitty/` | Terminal emulator configs (each under `.config/<term>/`) |
+| `starship/` | Starship prompt config (`.config/starship.toml`) |
 | `tmux/` | Tmux config (`.tmux.conf`) |
 | `git/` | Global gitignore + `gitconfig.zsh`, `completion.zsh` snippets |
 | `brew/` | `.Brewfile`, `.Brewfile.lock.json` |
@@ -23,18 +25,17 @@
 | `mise/`, `nvm/`, `go/`, `java/`, `ruby/`, `aws/` | Runtime/CLI loaders; mostly `*.zsh` snippets (auto-sourced) |
 | `ag/`, `ack/`, `ctags/` | Search/index tool configs |
 | `macos/` | macOS system defaults script (`.macos`) |
-| `teamocil/` | Tmux session templates (under `.teamocil/`) |
 
 ## Build, Test, and Development Commands
 - `./dotfiles` runs `stow --no-folding --ignore='\.zsh$' */` to recreate every symlink in `$HOME`. Idempotent; safe to rerun.
 - `brew bundle --file=~/.Brewfile` installs or updates formulae, casks, and App Store apps; run `brew bundle cleanup --file=~/.Brewfile` before pruning.
-- `nvim --headless "+Lazy sync" "+qa"` keeps Lua plugin declarations and the lock file aligned after editing `config/.config/nvim/`.
+- `nvim --headless "+Lazy sync" "+qa"` keeps Lua plugin declarations and the lock file aligned after editing `nvim/.config/nvim/`.
 - `zsh -n path/to/file.zsh` quickly parses shell scripts for syntax errors before sourcing them in a login shell.
 
 ## Coding Style & Naming Conventions
 - Favor lowercase directory names matching the target tool.
 - Shell scripts and Zsh functions stay POSIX-friendly, indent with two spaces, and add descriptive comments only around non-obvious blocks.
-- Lua files follow `stylua` (`config/.config/nvim/stylua.toml`), enforcing 2-space indentation and 120-character lines; run `stylua lua/**/*.lua` before committing.
+- Lua files follow `stylua` (`nvim/.config/nvim/stylua.toml`), enforcing 2-space indentation and 120-character lines; run `stylua lua/**/*.lua` before committing.
 - Commit changes by editing the real file (e.g. `brew/.Brewfile`) rather than the symlink in `$HOME`.
 - New tool init scripts follow the guard pattern: check if the tool is installed, then source/eval (see `mise/mise.zsh`, `nvm/nvm.zsh`, `ruby/chruby.zsh`).
 
