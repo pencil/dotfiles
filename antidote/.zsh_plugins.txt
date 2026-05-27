@@ -18,10 +18,6 @@ zsh-users/zsh-autosuggestions pin:e52ee8ca55bcc56a17c828767a3f98f22a68d4eb
 # Up/Down history-prefix search (prezto: history-substring-search) — was at tag v1.1.0
 zsh-users/zsh-history-substring-search pin:400e58a87f72ecec14f783fbd29bc6be4ff1641c
 
-# Git aliases comparable to prezto's git module. path:plugins/git restricts
-# the load surface to ~430 lines of aliases inside ohmyzsh.
-ohmyzsh/ohmyzsh path:plugins/git pin:5ef67beadbe371d7f4ed3a7456240e0fd46608ce
-
 # Syntax highlighting on the command line (prezto: syntax-highlighting). Must be last.
 # was at tag v1.56 (annotated)
 zdharma-continuum/fast-syntax-highlighting pin:5ecd353c81214f82bdeca5483fab6ccc5a2d5494
