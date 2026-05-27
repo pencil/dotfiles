@@ -1,7 +1,11 @@
 add_newline = false
 
-format = """[$directory](cyan)$character"""
+format = """[$hostname](yellow bold)[$directory](cyan)$character"""
 right_format = """${custom.git_state}${custom.git_time}$git_branch"""
+
+[hostname]
+ssh_only = true
+format = "\\[$hostname\\] "
 
 [directory]
 style = "cyan"
