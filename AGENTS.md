@@ -1,57 +1,45 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Root directories map to individual tools and contain `.symlink`/`.dsymlink` assets that the repo links into `$HOME`.
-- Each `*.zsh` file in any directory is auto-sourced by `zsh/zshrc.symlink`, which globs `$DOTFILES/**/*.zsh`. This is how tool-specific env vars, aliases, and PATH entries get loaded (e.g., `go/path.zsh`, `nvm/nvm.zsh`, `mise/mise.zsh`).
-
-### Symlink conventions
-- **`.symlink`** files become hidden dotfiles in `$HOME`: `vim/vimrc.symlink` → `~/.vimrc`.
-- **`.dsymlink`** directories become dirs under `$HOME/.`: `config/nvim.dsymlink` → `~/.config/nvim`.
-- **`.target`** parent directories override the destination: `claude/claude.target/settings.json.symlink` → `~/.claude/settings.json`.
+- Each top-level directory is a **GNU Stow package**. Its internal layout mirrors the destination relative to `$HOME` — e.g. `zsh/.zshrc` → `~/.zshrc`, `config/.config/starship.toml` → `~/.config/starship.toml`, `claude/.claude/settings.json` → `~/.claude/settings.json`.
+- `./dotfiles` runs `stow */` so adding a new tool is just `mkdir <tool>/<path-under-$HOME>` and rerunning — no script edits.
+- Each `*.zsh` file in any directory is auto-sourced by `zsh/.zshrc`, which globs `$DOTFILES/**/*.zsh`. This is how tool-specific env vars, aliases, and PATH entries get loaded (e.g., `go/path.zsh`, `nvm/nvm.zsh`, `mise/mise.zsh`). `./dotfiles` passes `--ignore='\.zsh$'` to stow so these snippets don't get linked into `$HOME`.
 
 ### Directory inventory
 | Directory | Purpose |
 |-----------|---------|
-| `zsh/` | Zshrc, zshenv, aliases |
-| `prezto/` | Prezto framework config (zpreztorc, zlogin, zlogout, zprofile) |
-| `bash/` | Bash fallback (bash_profile, inputrc) |
-| `system/` | System-wide env, aliases, PATH |
-| `vim/` | Legacy Vim config |
-| `config/nvim.dsymlink/` | Neovim LazyVim setup (Lua plugins, stylua.toml, lazy-lock.json) |
-| `tmux/` | Tmux config |
-| `git/` | Git aliases (gitconfig.zsh) and global gitignore |
-| `brew/` | Homebrew Brewfile and loader |
-| `claude/` | Claude Code settings and hook audio files (via .target) |
-| `codex/` | Codex config and notification script (via .target) |
+| `zsh/` | `.zshrc`, `.zshenv`; antidote loader, prompt init |
+| `bash/` | Bash fallback (`.bash_profile`, `.inputrc`) |
+| `system/` | Auto-sourced env, aliases, PATH snippets (not stowed) |
+| `vim/` | Legacy Vim config (`.vimrc`) |
+| `config/` | Everything under `~/.config/` — alacritty, ghostty, kitty, nvim, starship |
+| `tmux/` | Tmux config (`.tmux.conf`) |
+| `git/` | Global gitignore + `gitconfig.zsh`, `completion.zsh` snippets |
+| `brew/` | `.Brewfile`, `.Brewfile.lock.json` |
+| `claude/` | Claude Code settings + hook audio files (under `.claude/`) |
+| `codex/` | Codex config + notification script (under `.codex/`) |
 | `aider/` | Aider conf and conventions |
-| `mise/` | mise runtime manager activation |
-| `config/ghostty/` | Ghostty terminal config |
-| `config/kitty/` | Kitty terminal config |
-| `config/alacritty/` | Alacritty terminal config |
-| `ruby/` | chruby loader |
-| `go/` | GOPATH/GOROOT setup |
-| `java/` | JAVA_HOME and Android SDK paths |
-| `nvm/` | Node Version Manager loader |
-| `ag/`, `ack/` | Search tool configs (agignore, ackrc) |
-| `aws/` | AWS CLI setup |
-| `macos/` | macOS system defaults script |
-| `teamocil/` | Tmux session templates |
+| `antidote/` | `.zsh_plugins.txt` for the zsh plugin manager |
+| `mise/`, `nvm/`, `go/`, `java/`, `ruby/`, `aws/` | Runtime/CLI loaders; mostly `*.zsh` snippets (auto-sourced) |
+| `ag/`, `ack/`, `ctags/` | Search/index tool configs |
+| `macos/` | macOS system defaults script (`.macos`) |
+| `teamocil/` | Tmux session templates (under `.teamocil/`) |
 
 ## Build, Test, and Development Commands
-- `./dotfiles` (Ruby) regenerates all symlinks in `$HOME`; rerun after adding or renaming any `*.symlink`/`*.dsymlink` assets.
-- `brew bundle --file=brew/Brewfile.symlink` installs or updates formulae, casks, and App Store apps; run `brew bundle cleanup --file=brew/Brewfile.symlink` before pruning.
-- `nvim --headless "+Lazy sync" "+qa"` ensures Lua plugin declarations and the lock file stay aligned after editing `config/nvim.dsymlink`.
+- `./dotfiles` runs `stow --no-folding --ignore='\.zsh$' */` to recreate every symlink in `$HOME`. Idempotent; safe to rerun.
+- `brew bundle --file=~/.Brewfile` installs or updates formulae, casks, and App Store apps; run `brew bundle cleanup --file=~/.Brewfile` before pruning.
+- `nvim --headless "+Lazy sync" "+qa"` keeps Lua plugin declarations and the lock file aligned after editing `config/.config/nvim/`.
 - `zsh -n path/to/file.zsh` quickly parses shell scripts for syntax errors before sourcing them in a login shell.
 
 ## Coding Style & Naming Conventions
 - Favor lowercase directory names matching the target tool.
 - Shell scripts and Zsh functions stay POSIX-friendly, indent with two spaces, and add descriptive comments only around non-obvious blocks.
-- Lua files follow `stylua` (`config/nvim.dsymlink/stylua.toml`), enforcing 2-space indentation and 120-character lines; run `stylua lua/**/*.lua` before committing.
-- Commit new dependencies by editing the relevant `*.symlink` file (e.g., `brew/Brewfile.symlink`) rather than the generated file in `$HOME`.
+- Lua files follow `stylua` (`config/.config/nvim/stylua.toml`), enforcing 2-space indentation and 120-character lines; run `stylua lua/**/*.lua` before committing.
+- Commit changes by editing the real file (e.g. `brew/.Brewfile`) rather than the symlink in `$HOME`.
 - New tool init scripts follow the guard pattern: check if the tool is installed, then source/eval (see `mise/mise.zsh`, `nvm/nvm.zsh`, `ruby/chruby.zsh`).
 
 ## Zsh Plugin Management (antidote)
-- Plugins are listed in `antidote/zsh_plugins.txt.symlink` (→ `~/.zsh_plugins.txt`) and loaded by `zsh/zshrc.symlink` via antidote's static-bundle mode (`~/.zsh_plugins.zsh`).
+- Plugins are listed in `antidote/.zsh_plugins.txt` (→ `~/.zsh_plugins.txt`) and loaded by `zsh/.zshrc` via antidote's static-bundle mode (`~/.zsh_plugins.zsh`).
 - Every plugin is pinned to a specific commit SHA via `pin:<sha>`. `antidote update` explicitly skips pinned bundles, making installs reproducible and immune to upstream tag/branch movement.
 - **Do not bump pinned versions unless the user explicitly asks.** Treat the SHAs as locked.
 - When the user asks to bump a plugin:
@@ -63,9 +51,9 @@
      - Default-branch HEAD: `git ls-remote https://github.com/<owner>/<repo> HEAD`
      - Lightweight tag: `git ls-remote https://github.com/<owner>/<repo> refs/tags/<tag>`
      - Annotated tag (peel to commit): `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}'`
-  3. Edit the `pin:<sha>` value for that bundle in `antidote/zsh_plugins.txt.symlink`.
+  3. Edit the `pin:<sha>` value for that bundle in `antidote/.zsh_plugins.txt`.
   4. Force a refresh: `rm -rf ~/.cache/antidote/github.com/<owner>/<repo> ~/.zsh_plugins.zsh && exec zsh`.
-  5. Refresh the secrets baseline so detect-secrets accepts the new hex SHA: `detect-secrets scan --exclude-files '(^|/)(brew/Brewfile\.lock\.json\.symlink|lazy-lock\.json)$' --baseline .secrets.baseline`. Without this the pre-commit hook will reject the commit.
+  5. Refresh the secrets baseline so detect-secrets accepts the new hex SHA: `detect-secrets scan --exclude-files '(^|/)(brew/\.Brewfile\.lock\.json|lazy-lock\.json)$' --baseline .secrets.baseline`. Without this the pre-commit hook will reject the commit.
 
 ## Testing Guidelines
 - No automated test suite exists; validate manually by spawning a fresh shell (`zsh -l`) and opening Neovim to confirm configs load without warnings.

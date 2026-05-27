@@ -1,115 +1,49 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
+# Symlink every top-level dir in this repo into $HOME via GNU Stow.
+# Each package's layout mirrors its destination under $HOME — e.g.
+# zsh/.zshrc → ~/.zshrc, config/.config/starship.toml → ~/.config/starship.toml.
+#
+# Dirs that only contain *.zsh snippets (auto-sourced by zshrc, not symlinked)
+# pass through harmlessly thanks to --ignore.
+#
+# Pass --clean once on first run after migrating from the old Ruby script: it
+# removes any pre-existing symlinks under $HOME that point into a checkout of
+# this repo, so stow can take over without conflicts.
+set -euo pipefail
 
-require 'pathname'
-require 'fileutils'
+cd "$(dirname "$(readlink -f "$0")")"
 
-DOTFILES = File.join(File.dirname(Pathname.new(__FILE__).realpath))
-HOME = ENV['HOME']
+if ! command -v stow >/dev/null; then
+  echo "stow not installed — run \`brew bundle\` (or apt install stow) first." >&2
+  exit 1
+fi
 
-Dir.chdir(DOTFILES)
+if [[ "${1:-}" == "--clean" ]]; then
+  echo "Removing pre-existing symlinks under \$HOME that point into the dotfiles repo."
+  while IFS= read -r -d '' link; do
+    target=$(readlink "$link" 2>/dev/null) || continue
+    case "$target" in
+      *.dotfiles/*|*.dotfiles) rm -f "$link" ;;
+    esac
+  done < <(find "$HOME" -maxdepth 8 -type l -print0 2>/dev/null)
+fi
 
-puts "Creating symlinks in #{HOME} from #{DOTFILES}"
+# --no-folding stops stow from collapsing intermediate dirs (e.g. ~/.config)
+# into directory symlinks, so adding a second package later doesn't surprise us.
+# --ignore='\.zsh$' skips auto-sourced snippets so dirs like mise/ or aws/ that
+# only contain those don't link the snippet itself into $HOME.
+# */ expands to every non-hidden top-level dir, so adding a new package is just
+# `mkdir <pkg>/<dotfile path>` and re-running this script — no edit needed here.
+stow --target="$HOME" --no-folding --ignore='\.zsh$' --restow */
 
-# Recursively locate .symlink/.dsymlink entries anywhere in the repository
-Dir.glob('**/*.{symlink,dsymlink}', File::FNM_DOTMATCH).sort.each do |f|
-  next if f.start_with?('.git/') || f.include?('/.git/')
-
-  pathname = Pathname.new(f)
-  dir = pathname.dirname      # e.g., Pathname("config") or Pathname(".")
-  base = pathname.basename    # e.g., Pathname("nvim.dsymlink") or Pathname("bash_profile.symlink")
-  name_without_symlink = base.basename('.*') # e.g., Pathname("nvim") or Pathname("bash_profile")
-
-  # Absolute path to source file/dir in dotfiles repo
-  src = File.join(DOTFILES, f)
-
-  if base.extname == '.dsymlink'
-    # Directory symlink: target is ~/.config/nvim or ~/.mydir
-    if dir.to_s == '.'
-      # Source is in root: mydir.dsymlink -> Target: ~/.mydir
-      target_parent_dir = HOME
-      target_name = ".#{name_without_symlink}"
-    else
-      # Source is in subdir: config/nvim.dsymlink -> Target: ~/.config/nvim
-      target_parent_dir = File.join(HOME, ".#{dir}") # ~/.config
-      target_name = name_without_symlink.to_s       # nvim
-      FileUtils.mkdir_p target_parent_dir unless Dir.exist?(target_parent_dir)
-    end
-    dst = File.join(target_parent_dir, target_name)
-  else # .symlink
-    # File symlink: default target is ~/.bash_profile or ~/.vimrc
-    # Link directly into HOME, prefixed with '.'
-    parent_segments = pathname.each_filename.to_a[0...-1]
-    target_path = nil
-
-    parent_segments.each do |segment|
-      next if segment == '.'
-
-      if segment.end_with?('.target')
-        base_segment = segment.sub(/\.target\z/, '')
-
-        if base_segment.empty?
-          warn "Skipping target override with empty name for #{f}"
-          target_path = nil
-          break
-        end
-
-        if target_path.nil?
-          target_path =
-            if base_segment.start_with?('/')
-              base_segment
-            elsif base_segment.start_with?('~')
-              File.expand_path(base_segment, HOME)
-            elsif base_segment.start_with?('.')
-              File.join(HOME, base_segment)
-            else
-              File.join(HOME, ".#{base_segment}")
-            end
-        else
-          target_path = File.join(target_path, base_segment)
-        end
-      elsif target_path
-        target_path = File.join(target_path, segment)
-      end
-    end
-
-    if target_path
-      target_parent_dir = target_path
-      FileUtils.mkdir_p(target_parent_dir) unless Dir.exist?(target_parent_dir)
-      dst = File.join(target_parent_dir, name_without_symlink.to_s)
-    else
-      target_parent_dir = HOME
-      target_name = ".#{name_without_symlink}"
-      dst = File.join(target_parent_dir, target_name)
-    end
-  end
-
-  # Skip if the correct symlink already exists
-  if File.symlink?(dst) && File.readlink(dst) == src
-    # puts "Skipping existing symlink: #{dst}" # Uncomment for verbose output
-    next
-  end
-
-  # If dst is an existing symlink (to a different target), unlink it first.
-  # Otherwise `ln -sf` follows the symlink when it points at a directory and
-  # creates the new link *inside* that directory — silently producing nested
-  # `nvim.dsymlink/nvim.dsymlink` style turds.
-  File.unlink(dst) if File.symlink?(dst)
-
-  puts "Symlinking #{dst} -> #{src}"
-  FileUtils.ln_sf(src, dst)
-end
-
-if system('command -v pre-commit > /dev/null 2>&1')
-  git_dir = `git rev-parse --git-dir 2>/dev/null`.strip
-  git_common = `git rev-parse --git-common-dir 2>/dev/null`.strip
-  if !git_dir.empty? && git_dir != git_common
-    # In a linked worktree: pre-commit would touch the shared core.hooksPath
-    # and then refuse on the next run.
-    puts "Skipping pre-commit install (inside a git worktree)"
+if command -v pre-commit >/dev/null; then
+  git_dir=$(git rev-parse --git-dir 2>/dev/null || true)
+  git_common=$(git rev-parse --git-common-dir 2>/dev/null || true)
+  if [[ -n "$git_dir" && "$git_dir" != "$git_common" ]]; then
+    echo "Skipping pre-commit install (inside a git worktree)"
   else
-    puts "Installing pre-commit git hook"
-    system('pre-commit install')
-  end
-end
+    pre-commit install
+  fi
+fi
 
-puts "Dotfiles setup complete."
+echo "Dotfiles setup complete."

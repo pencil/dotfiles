@@ -4,4 +4,4 @@ repos:
     hooks:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
-        exclude: '^(brew/Brewfile\.lock\.json\.symlink|.*lazy-lock\.json)$'
+        exclude: '^(brew/\.Brewfile\.lock\.json|.*lazy-lock\.json)$'
