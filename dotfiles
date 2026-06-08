@@ -50,10 +50,14 @@ stow --target="$HOME" --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --re
 
 # Post-stow machine setup that can't be expressed as a symlink (system-binary
 # workarounds, git hook installation, …). Each step is an idempotent, guarded,
-# executable script under bootstrap.d/, run with the repo root as cwd. Drop a
-# new one in to add a step — no edit needed here.
-for step in bootstrap.d/*; do
-  [[ -x "$step" ]] || continue
+# executable script under bootstrap.d/, run with the repo root as cwd. A step can
+# be a bare script (bootstrap.d/foo.sh) or a script bundled with its data files
+# in a subdir (bootstrap.d/foo/foo.sh); we walk one level of nesting and run
+# every executable file, skipping non-executable companions (data, templates).
+# Drop a new one in to add a step — no edit needed here.
+shopt -s nullglob
+for step in bootstrap.d/* bootstrap.d/*/*; do
+  [[ -f "$step" && -x "$step" ]] || continue
   "$step"
 done
 
