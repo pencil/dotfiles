@@ -84,10 +84,18 @@ effort_str=$(printf "${effort_color}%s\033[0m" "$effort_glyphs")
 # ── tmux window rename ───────────────────────────────────────────────────────
 # Sync the Claude session name (set via /rename) to the tmux window name.
 # Disables tmux's automatic rename for this window as a side effect.
+# Preserve the "needs your input" marker that claude-tmux-mark.sh may have
+# prepended, so this frequent re-render doesn't wipe it while Claude is blocked.
+# Keep `marker` in sync with MARKER in ~/.claude/claude-tmux-mark.sh.
 if [ -n "$TMUX" ] && [ -n "$TMUX_PANE" ]; then
   session_name=$(echo "$input" | jq -r '.session_name // empty')
   if [ -n "$session_name" ]; then
-    tmux rename-window -t "$TMUX_PANE" "$session_name" 2>/dev/null || true
+    marker='🔴 '
+    cur=$(tmux display-message -p -t "$TMUX_PANE" '#{window_name}' 2>/dev/null)
+    case "$cur" in
+      "$marker"*) tmux rename-window -t "$TMUX_PANE" "${marker}${session_name}" 2>/dev/null || true ;;
+      *)          tmux rename-window -t "$TMUX_PANE" "$session_name" 2>/dev/null || true ;;
+    esac
   fi
 fi
 

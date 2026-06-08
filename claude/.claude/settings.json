@@ -14,6 +14,11 @@
             "type": "command",
             "command": "command -v afplay >/dev/null && afplay ~/.claude/jobs_done.mp3 || true",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.claude/claude-tmux-mark.sh off",
+            "timeout": 5
           }
         ]
       }
@@ -24,6 +29,29 @@
           {
             "type": "command",
             "command": "command -v afplay >/dev/null && afplay ~/.claude/order_sir.m4a || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|idle_prompt|elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/claude-tmux-mark.sh on",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/claude-tmux-mark.sh off",
             "timeout": 5
           }
         ]
