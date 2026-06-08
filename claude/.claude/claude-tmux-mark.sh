@@ -9,12 +9,11 @@
 # The marker is a prefix on the window name. statusline-command.sh preserves it
 # when it re-syncs the name to the /rename session title, so the two never fight.
 #
-# MARKER: default is a red-circle indicator that renders in any tmux. For real
-# tmux coloring of the whole window entry instead, set:
-#   MARKER=$'#[fg=colour9,bold]\xe2\x97\x8f '   # bright-red bold dot, name turns red
-# tmux interprets #[...] styles embedded in a window name rendered via #W.
+# MARKER: a tmux style prefix that turns the whole window entry red while Claude
+# is waiting on you — tmux interprets #[...] styles embedded in a window name
+# rendered via #W. For a plain emoji indicator instead, use:  MARKER='🔴 '
 # Keep this value in sync with the `marker` var in statusline-command.sh.
-MARKER='🔴 '
+MARKER='#[fg=colour9,bold]● '
 
 [ -n "$TMUX" ] && [ -n "$TMUX_PANE" ] && command -v tmux >/dev/null || exit 0
 

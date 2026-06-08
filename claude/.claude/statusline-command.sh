@@ -90,7 +90,7 @@ effort_str=$(printf "${effort_color}%s\033[0m" "$effort_glyphs")
 if [ -n "$TMUX" ] && [ -n "$TMUX_PANE" ]; then
   session_name=$(echo "$input" | jq -r '.session_name // empty')
   if [ -n "$session_name" ]; then
-    marker='🔴 '
+    marker='#[fg=colour9,bold]● '
     cur=$(tmux display-message -p -t "$TMUX_PANE" '#{window_name}' 2>/dev/null)
     case "$cur" in
       "$marker"*) tmux rename-window -t "$TMUX_PANE" "${marker}${session_name}" 2>/dev/null || true ;;
