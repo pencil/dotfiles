@@ -31,35 +31,30 @@ if [[ "${1:-}" == "--clean" ]]; then
     case "$target" in
       *.dotfiles/*|*.dotfiles) rm -f "$dst" ;;
     esac
-  done < <(find ./*/ -type f ! -name '*.zsh' -print0 2>/dev/null)
+  done < <(find ./*/ -type f ! -name '*.zsh' ! -path './bootstrap.d/*' -print0 2>/dev/null)
 fi
 
 # --no-folding stops stow from collapsing intermediate dirs (e.g. ~/.config)
 # into directory symlinks, so adding a second package later doesn't surprise us.
 # --ignore='\.zsh$' skips auto-sourced snippets so dirs like mise/ or aws/ that
 # only contain those don't link the snippet itself into $HOME.
-# */ expands to every non-hidden top-level dir, so adding a new package is just
+# Every non-hidden top-level dir is a package except bootstrap.d/ (post-setup
+# scripts, run below). Adding a real package is still just
 # `mkdir <pkg>/<dotfile path>` and re-running this script — no edit needed here.
-stow --target="$HOME" --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --restow */
+packages=()
+for dir in */; do
+  [[ "$dir" == "bootstrap.d/" ]] && continue
+  packages+=("$dir")
+done
+stow --target="$HOME" --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --restow "${packages[@]}"
 
-# On systems where /usr/bin/dd is the Rust uutils rewrite (e.g. Ubuntu 25),
-# `dd iflag=nonblock` blocks on tty reads anyway, which breaks fzf-tab. If GNU
-# coreutils is also installed as gnudd, expose it as ~/.local/bin/gdd so
-# fzf-tab picks it up via its `gdd` lookup.
-if [[ -x /usr/bin/gnudd && ! -e "$HOME/.local/bin/gdd" ]]; then
-  mkdir -p "$HOME/.local/bin"
-  ln -s /usr/bin/gnudd "$HOME/.local/bin/gdd"
-  echo "Symlinked $HOME/.local/bin/gdd -> /usr/bin/gnudd (works around uutils dd)"
-fi
-
-if command -v pre-commit >/dev/null; then
-  git_dir=$(git rev-parse --git-dir 2>/dev/null || true)
-  git_common=$(git rev-parse --git-common-dir 2>/dev/null || true)
-  if [[ -n "$git_dir" && "$git_dir" != "$git_common" ]]; then
-    echo "Skipping pre-commit install (inside a git worktree)"
-  else
-    pre-commit install
-  fi
-fi
+# Post-stow machine setup that can't be expressed as a symlink (system-binary
+# workarounds, git hook installation, …). Each step is an idempotent, guarded,
+# executable script under bootstrap.d/, run with the repo root as cwd. Drop a
+# new one in to add a step — no edit needed here.
+for step in bootstrap.d/*; do
+  [[ -x "$step" ]] || continue
+  "$step"
+done
 
 echo "Dotfiles setup complete."
