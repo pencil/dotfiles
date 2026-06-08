@@ -1,0 +1,3 @@
+# Betterfox ships its user.js as LF. Pin it so version bumps show a real
+# diff instead of flipping every line between CRLF and LF.
+bootstrap.d/firefox/user.js text eol=lf
