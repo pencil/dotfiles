@@ -111,6 +111,8 @@ defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
 defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
 # Follow the keyboard focus while zoomed in
 defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool true
+# Don't smooth (anti-alias) the zoomed image — keep pixels sharp
+defaults write com.apple.universalaccess closeViewSmoothImages -bool false
 
 # Disable press-and-hold for keys in favor of key repeat
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
@@ -463,3 +465,31 @@ done
 
 # Invalidate cached sudo credentials
 sudo -k
+
+###############################################################################
+# Full Disk Access check                                                      #
+###############################################################################
+
+# Writing com.apple.universalaccess (reduce transparency, scroll-to-zoom,
+# sharp zoom) requires Full Disk Access. Re-write a key already set above; if
+# the write fails, FDA is missing and that whole section was a silent no-op —
+# so warn loudly. `set +x` keeps the banner free of command-trace noise.
+set +x
+if ! defaults write com.apple.universalaccess reduceTransparency -bool true 2> /dev/null; then
+	cat <<'EOF'
+
+⚠️  ==================================================================  ⚠️
+
+        FULL DISK ACCESS MISSING
+
+    The Accessibility settings (reduce transparency, scroll-to-zoom,
+    sharp/non-smoothed zoom) could NOT be applied — the protected
+    com.apple.universalaccess domain needs Full Disk Access.
+
+    Fix:  System Settings ▸ Privacy & Security ▸ Full Disk Access
+          → add your terminal, then re-run this script.
+
+⚠️  ==================================================================  ⚠️
+
+EOF
+fi
