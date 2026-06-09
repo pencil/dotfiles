@@ -105,8 +105,8 @@ defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 # silently without Full Disk Access for the terminal, so this block is a no-op
 # on a stock setup. Reliable path: System Settings ▸ Accessibility ▸ Zoom ▸
 # "Use scroll gesture with modifier keys to zoom" (set modifier to ^ Control).
-# Alternatively grant the terminal Full Disk Access, re-run, then log out/in
-# (or `killall universalaccessd`) for the change to take effect.
+# Alternatively grant the terminal Full Disk Access and re-run; the kill-list
+# at the end of this script reloads universalaccessd so it takes effect.
 defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
 defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
 # Follow the keyboard focus while zoomed in
@@ -457,7 +457,7 @@ defaults write org.gpgtools.gpgmail SignNewEmailsByDefault -bool false
 # Kill affected applications                                                  #
 ###############################################################################
 
-for app in "Activity Monitor" "cfprefsd" "ControlCenter" "Dock" "Finder" "SystemUIServer"; do
+for app in "Activity Monitor" "cfprefsd" "ControlCenter" "Dock" "Finder" "SystemUIServer" "universalaccessd"; do
 	killall "${app}" &> /dev/null
 done
 
