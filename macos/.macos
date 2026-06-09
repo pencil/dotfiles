@@ -32,6 +32,10 @@ defaults write NSGlobalDomain AppleAquaColorVariant -int 6
 defaults write NSGlobalDomain AppleHighlightColor -string "0.847059 0.847059 0.862745 Graphite"
 
 # Reduce transparency in the menu bar and elsewhere
+# NOTE: com.apple.universalaccess is a TCC/SIP-protected domain. Without Full
+# Disk Access for the terminal, this write fails silently ("Could not write
+# domain", exit 1) — set it via System Settings ▸ Accessibility ▸ Display, or
+# grant the terminal Full Disk Access and re-run.
 defaults write com.apple.universalaccess reduceTransparency -bool true
 
 # Set sidebar icon size to small
@@ -96,7 +100,13 @@ defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int
 # Enable full keyboard access for all controls (e.g. Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-# Use scroll gesture with the Ctrl (^) modifier key to zoom
+# Use scroll gesture with the Ctrl (^) modifier key to zoom (262144 = Control)
+# NOTE: com.apple.universalaccess is TCC/SIP-protected — these writes fail
+# silently without Full Disk Access for the terminal, so this block is a no-op
+# on a stock setup. Reliable path: System Settings ▸ Accessibility ▸ Zoom ▸
+# "Use scroll gesture with modifier keys to zoom" (set modifier to ^ Control).
+# Alternatively grant the terminal Full Disk Access, re-run, then log out/in
+# (or `killall universalaccessd`) for the change to take effect.
 defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
 defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
 # Follow the keyboard focus while zoomed in
