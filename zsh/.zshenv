@@ -24,3 +24,11 @@ if command -v mise >/dev/null 2>&1; then
   [[ -n "$__mise_node_dir" && -d "$__mise_node_dir/bin" ]] && path=("$__mise_node_dir/bin" $path)
   unset __mise_node_dir
 fi
+
+# Hand the same mise-managed node to non-interactive *bash* shells. Tools like
+# Claude Code's bash tool spawn a non-login, non-interactive bash that sources
+# no startup file (.bash_profile is login-only; .bashrc returns early when
+# non-interactive) — BASH_ENV is the one file bash reads in that mode. Exported
+# here (always-sourced) so a `claude` launched from zsh inherits it and its bash
+# children pick up the mise node. The target mirrors the block above.
+export BASH_ENV="$HOME/.bash_env"

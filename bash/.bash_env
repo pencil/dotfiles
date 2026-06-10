@@ -1,0 +1,29 @@
+# Sourced by non-interactive bash via $BASH_ENV (exported from zsh/.zshenv).
+#
+# Bash counterpart of the mise block in zsh/.zshenv: give non-interactive bash
+# shells the mise-managed node instead of the system one. Notably Claude Code's
+# bash tool, which runs a non-login, non-interactive bash that sources no
+# startup file — BASH_ENV is the only init file bash reads in that mode.
+#
+# mise's shims are misconfigured on this box (they symlink to a directory), so
+# resolve the node bin directly via `mise where`, matching zsh/.zshenv.
+
+# Fast path: if a mise-managed node is already on PATH (inherited from the
+# launching shell), there's nothing to do. Skip the `mise where` subprocess so
+# this stays cheap even when sourced by every nested non-interactive shell.
+case ":$PATH:" in
+  *"/installs/node/"*) return 0 2>/dev/null || true ;;
+esac
+
+if command -v mise >/dev/null 2>&1; then
+  # Prefer the cwd's mise version (trusted .mise.toml); fall back to the global
+  # default when the cwd has no/untrusted config. Guard against empty output so
+  # we never prepend a bare "/bin".
+  __mise_node_dir="$(mise where node 2>/dev/null)"
+  [ -n "$__mise_node_dir" ] || __mise_node_dir="$(cd "$HOME" && mise where node 2>/dev/null)"
+  if [ -n "$__mise_node_dir" ] && [ -d "$__mise_node_dir/bin" ]; then
+    PATH="$__mise_node_dir/bin:$PATH"
+    export PATH
+  fi
+  unset __mise_node_dir
+fi
