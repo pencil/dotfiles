@@ -15,6 +15,12 @@ unset _brew_bin _brew_prefix
 
 if type brew &>/dev/null
 then
-  export FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+  # Prepend brew's completion dir to the *array* fpath, and never export it.
+  # FPATH ties to the fpath array, which includes zsh's own version-pinned
+  # functions dir (…/Cellar/zsh/<ver>/share/zsh/functions). Exporting FPATH leaks
+  # that whole list to child shells; a `brew upgrade zsh` then deletes the old
+  # <ver> dir, leaving children with a stale path where add-zsh-hook, is-at-least,
+  # compinit, bashcompinit, etc. can no longer be found.
+  fpath=("$(brew --prefix)/share/zsh/site-functions" $fpath)
   export LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib"
 fi
