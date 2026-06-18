@@ -36,6 +36,12 @@ bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 bindkey '^P' history-substring-search-up
 bindkey '^N' history-substring-search-down
+# Inside tmux (and other terminals in application-cursor-key mode) the arrows
+# send the SS3 sequences ^[OA/^[OB instead of the CSI ^[[A/^[[B above. Bind
+# whatever the current terminal actually emits, via terminfo.
+zmodload -i zsh/terminfo
+[[ -n "$terminfo[kcuu1]" ]] && bindkey "$terminfo[kcuu1]" history-substring-search-up
+[[ -n "$terminfo[kcud1]" ]] && bindkey "$terminfo[kcud1]" history-substring-search-down
 
 ## Word boundaries (so ctrl-w/alt-b/etc. break on punctuation the prezto way)
 WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
