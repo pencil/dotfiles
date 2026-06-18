@@ -1,0 +1,16 @@
+# markdownlint config for Neovim (markdownlint-cli2).
+#
+# Pointed at explicitly via --config from lua/plugins/markdown.lua. We can't
+# rely on markdownlint-cli2's own config discovery here: nvim-lint pipes the
+# buffer over stdin, and in that mode cli2 only reads a config from the exact
+# process cwd (no walk-up the directory tree), so a stray ~/.markdownlint.yaml
+# wouldn't reliably apply. An explicit --config works regardless of cwd.
+#
+# Disable noisy stylistic rules. Add a line to silence more; see
+# https://github.com/DavidAnson/markdownlint/tree/main/doc for the full list.
+MD004: false  # ul-style (consistent bullet character)
+MD013: false  # line-length
+MD022: false  # blanks-around-headings
+MD032: false  # blanks-around-lists
+MD040: false  # fenced-code-language (no language on a ``` block)
+MD060: false  # table-column-style
