@@ -99,12 +99,28 @@ if [ -n "$TMUX" ] && [ -n "$TMUX_PANE" ]; then
   fi
 fi
 
+# ── Ponytail mode ─────────────────────────────────────────────────────────────
+# Plugin writes the active mode (full/lite/ultra) to this flag; absent = inactive.
+pony_flag="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"
+pony_part=""
+if [ -f "$pony_flag" ]; then
+  pony_mode=$(head -n1 "$pony_flag" | tr -d '[:space:]')
+  case "$pony_mode" in
+    lite)        pony_part="🐴" ;;
+    ""|full)     pony_part="🐴🐴" ;;
+    ultra)       pony_part="🐴🐴🐴" ;;
+    *)           pony_part="🐴" ;;
+  esac
+fi
+
 # ── Compose ──────────────────────────────────────────────────────────────────
 sep=$(printf "\033[2m·\033[0m")
 
-printf "%s  %s  %s  %s  %s\n" \
+printf "%s  %s  %s  %s  %s" \
   "$ctx_part" \
   "$sep" \
   "$(printf '\033[37m%s\033[0m' "$model")" \
   "$sep" \
   "$effort_str"
+[ -n "$pony_part" ] && printf "  %s  %s" "$sep" "$pony_part"
+printf "\n"
