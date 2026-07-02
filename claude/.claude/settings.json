@@ -102,6 +102,7 @@
   },
   "effortLevel": "xhigh",
   "autoUpdatesChannel": "latest",
+  "tui": "default",
   "voice": {
     "enabled": true,
     "mode": "hold"
