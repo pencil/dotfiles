@@ -77,7 +77,8 @@
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
     "sentry@claude-plugins-official": true,
-    "ponytail@ponytail": true
+    "ponytail@ponytail": true,
+    "clangd-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "superpowers-marketplace": {
