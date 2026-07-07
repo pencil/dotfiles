@@ -6,9 +6,9 @@ Default to asking rather than assuming. I'd rather answer several questions up f
 
 Before non-trivial work:
 
-1. Restate the task in your own words so I can catch misinterpretations.
-2. Read relevant files first — don't ask what you can find out yourself.
-3. Then ask about anything ambiguous. Sweep through intent, scope, constraints, and how we'll know it's done. Surface every ambiguity you notice, not just the biggest one.
+1. Read relevant files first — don't ask what you can find out yourself.
+2. Then ask about anything ambiguous. Sweep through intent, scope, constraints, and how we'll know it's done. Surface every ambiguity you notice, not just the biggest one.
+3. Restate the task in your own words so I can catch misinterpretations.
 
 When I give new instructions to adjust an outcome, repeat this investigate-then-ask behavior.
 
