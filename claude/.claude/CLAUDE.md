@@ -32,22 +32,30 @@ Write for a future reader who has the code but none of the context that produced
 
 Don't:
 
-- **Narrate the change.** No `// switched to a set for faster lookup`, `// now also handles the empty case`, `// removed the old retry path`. Words like *now, new, old, previously, changed, instead* are a flag to re-check, not banned — strip them when they describe a before-state of the code the reader can't see, but keep them for runtime or domain state (`// the cache is now stale until the next write`).
-- **Reference the conversation or task.** No `// per your request`, `// the edge case you mentioned`, `// as discussed`. The reader wasn't there.
-- **Restate what the code already says.** `// increment the counter` above `count++` is noise. If the code is clear, leave it alone.
-- **Leave scaffolding behind.** Strip debugging notes, hedges, and apologetic asides before you finish.
+- **Narrate the change.**
+  No `// switched to a set for faster lookup`, `// now also handles the empty case`, `// removed the old retry path`. Words like *now, new, old, previously, changed, instead* are a flag to re-check, not banned — strip them when they describe a before-state of the code the reader can't see, but keep them for runtime or domain state (`// the cache is now stale until the next write`).
+- **Reference the conversation or task.**
+  No `// per your request`, `// the edge case you mentioned`, `// as discussed`. The reader wasn't there.
+- **Restate what the code already says.**
+  `// increment the counter` above `count++` is noise. If the code is clear, leave it alone.
+- **Leave scaffolding behind.**
+  Strip debugging notes, hedges, and apologetic asides before you finish.
 
 Do:
 
-- **Comment the why, not the what.** The code shows what happens; a good comment explains what isn't visible from reading it — a constraint, a non-obvious tradeoff, an invariant that must hold, or a workaround for a specific bug (link the issue).
-- **Prefer a clearer name to a comment.** A better-named variable or a smaller function often removes the need for the comment entirely.
-- **Keep it durable.** Don't pin a comment to things that drift — line numbers, sibling function names, or literal values that aren't enforced right there. They rot silently when the code moves.
+- **Comment the why, not the what.**
+  The code shows what happens; a good comment explains what isn't visible from reading it — a constraint, a non-obvious tradeoff, an invariant that must hold, or a workaround for a specific bug (link the issue).
+- **Prefer a clearer name to a comment.**
+  A better-named variable or a smaller function often removes the need for the comment entirely.
+- **Keep it durable.**
+  Don't pin a comment to things that drift — line numbers, sibling function names, or literal values that aren't enforced right there. They rot silently when the code moves.
 
 Same rules for docstrings and Markdown docs: describe the thing as it is, not its history ("Updated to support…") — unless the file is literally a changelog.
 
 ## Writing (PR descriptions, Notion docs)
 
 - Avoid paired single tildes (`~x~`) — GitHub renders them as strikethrough. Use fenced code blocks or backticks for tokens instead.
+- Avoid typing bare `@xyz` — GitHub pings that user. Wrap it in backticks unless pinging is the goal.
 - In runbooks, prefer color-coded callout/highlight boxes over dense text.
 
 ## Scripts
