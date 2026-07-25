@@ -61,6 +61,7 @@ cask 'aerial'
 cask 'battery'
 #cask 'battle-net'
 cask 'chatgpt'
+cask 'claude-code@latest'
 cask 'codex'
 #cask 'corsair-icue'
 cask 'discord'
@@ -90,7 +91,5 @@ cask 'suspicious-package'
 cask 'visual-studio-code'
 cask 'vlc'
 mas 'LadioCast', id: 411213048
-mas 'Numbers', id: 409203825
-mas 'Pages', id: 409201541
 mas 'Pixelmator Pro', id: 1289583905
 mas 'The Unarchiver', id: 425424353
