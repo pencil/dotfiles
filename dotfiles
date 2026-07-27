@@ -46,7 +46,12 @@ for dir in */; do
   [[ "$dir" == "bootstrap.d/" ]] && continue
   packages+=("$dir")
 done
-stow --target="$HOME" --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --restow "${packages[@]}"
+# stow -v logs to stderr, and under --restow it reports an UNLINK+LINK pair for
+# every link that was already correct. The awk pass cancels those pairs out so
+# only real changes print: new LINK/MKDIR lines, plus UNLINKs with no matching
+# re-link (a file that left the repo), which are flushed at the end.
+stow --target="$HOME" --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --restow -v "${packages[@]}" 2>&1 |
+  awk '/^UNLINK: /{u[$2]=1;next} /\(reverts previous action\)$/{delete u[$2];next} {print} END{for(k in u) print "UNLINK: "k}'
 
 # Post-stow machine setup that can't be expressed as a symlink (system-binary
 # workarounds, git hook installation, …). Each step is an idempotent, guarded,
