@@ -35,7 +35,9 @@ def _only_strings(values: Iterable[Any]) -> list[str]:
 
 def _build_agent_turn_notification(notification: dict[str, Any]) -> tuple[str, str]:
     assistant_message = (notification.get("last-assistant-message") or "").strip()
-    input_messages = _only_strings(notification.get("input_messages", []))
+    input_messages = _only_strings(
+        notification.get("input-messages", notification.get("input_messages", []))
+    )
 
     message_blocks: list[str] = []
     if assistant_message:
@@ -47,7 +49,7 @@ def _build_agent_turn_notification(notification: dict[str, Any]) -> tuple[str, s
     if not message:
         message = "Turn complete."
 
-    raw_title = assistant_message or input_messages[0] if input_messages else ""
+    raw_title = assistant_message or (input_messages[0] if input_messages else "")
     if not raw_title:
         raw_title = "Turn complete."
 
@@ -113,6 +115,16 @@ def main() -> int:
         case _:
             print(f"not sending a push notification for: {notification_type}")
             return 0
+
+    try:
+        subprocess.run(
+            ["bash", os.path.expanduser("~/.codex/codex-tmux-mark.sh"), "off"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+    except Exception:
+        pass
 
     notifier_args = [
         "terminal-notifier",

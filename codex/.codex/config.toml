@@ -1,0 +1,43 @@
+notify = ["python3", "/home/nils/.codex/notify.py"]
+project_doc_fallback_filenames = ["CLAUDE.md"]
+model_reasoning_effort = "xhigh"
+personality = "pragmatic"
+approvals_reviewer = "auto_review"
+model = "gpt-5.6-sol"
+
+[projects."/home/nils/projects/outset"]
+trust_level = "trusted"
+
+[projects."/home/nils/.dotfiles"]
+trust_level = "trusted"
+
+[tui]
+alternate_screen = "never"
+notifications = ["approval-requested"]
+status_line = ["context-used", "model-with-reasoning"]
+terminal_title = ["status", "thread-title"]
+
+[mcp_servers.linear]
+url = "https://mcp.linear.app/mcp"
+
+[hooks.state]
+
+[hooks.state."/home/nils/.codex/hooks.json:permission_request:0:0"]
+trusted_hash = "sha256:b17c9957c772f06271ddafa1b94f9af0f45844c763bb36b84e7bee7f9162e33e"
+
+[hooks.state."/home/nils/.codex/hooks.json:permission_request:0:1"]
+trusted_hash = "sha256:cb2d4872a2330b14e0059c78e07f949bdc139364b88ecc65b9e073530f1f47cf"
+enabled = true
+
+[hooks.state."/home/nils/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:693ab77a6d11553a95f3ad59ef1992ac2a7a32fa406ebc21f4a668aee05770a4"
+enabled = true
+
+[hooks.state."/home/nils/.codex/hooks.json:session_end:0:0"]
+trusted_hash = "sha256:208f69fe64965dc4515e79d65fa3dfc072bdeff222635f887c4607f781c5f234"
+
+[hooks.state."/home/nils/.codex/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:997964480adfbd676eeceb916bbdebfdf95653047a4f0df7c75d781dcc9fe72e"
+
+[hooks.state."/home/nils/.codex/hooks.json:stop:0:0"]
+trusted_hash = "sha256:9ce3362f31659e6b103254502a1fb83552c4fb8df37d65acdd58e43a6ed14527"
