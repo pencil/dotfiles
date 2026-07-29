@@ -15,7 +15,7 @@ trust_level = "trusted"
 alternate_screen = "never"
 notifications = ["approval-requested"]
 status_line = ["context-used", "model-with-reasoning"]
-terminal_title = ["status", "thread-title"]
+terminal_title = ["thread-title"]
 
 [mcp_servers.linear]
 url = "https://mcp.linear.app/mcp"
@@ -34,10 +34,14 @@ trusted_hash = "sha256:693ab77a6d11553a95f3ad59ef1992ac2a7a32fa406ebc21f4a668aee
 enabled = true
 
 [hooks.state."/home/nils/.codex/hooks.json:session_end:0:0"]
-trusted_hash = "sha256:208f69fe64965dc4515e79d65fa3dfc072bdeff222635f887c4607f781c5f234"
+trusted_hash = "sha256:4b3ee967a8f3a5b81d10abd102076815c8e616953a1f66edec5acfe49dec9f94"
+enabled = true
 
 [hooks.state."/home/nils/.codex/hooks.json:user_prompt_submit:0:0"]
 trusted_hash = "sha256:997964480adfbd676eeceb916bbdebfdf95653047a4f0df7c75d781dcc9fe72e"
 
 [hooks.state."/home/nils/.codex/hooks.json:stop:0:0"]
 trusted_hash = "sha256:9ce3362f31659e6b103254502a1fb83552c4fb8df37d65acdd58e43a6ed14527"
+
+[hooks.state."/home/nils/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:187c2f12c427dbfd586197bdbf95434dc7dab9d7477a7af8d6e96209df7795ca"

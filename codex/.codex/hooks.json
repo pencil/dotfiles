@@ -1,6 +1,17 @@
 {
   "description": "Personal attention indicators for Codex sessions.",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.codex/codex-tmux-mark.sh start",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PermissionRequest": [
       {
         "hooks": [
@@ -55,7 +66,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.codex/codex-tmux-mark.sh off",
+            "command": "bash ~/.codex/codex-tmux-mark.sh end",
             "timeout": 3
           }
         ]
