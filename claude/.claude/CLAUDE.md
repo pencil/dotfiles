@@ -62,3 +62,10 @@ Same rules for docstrings and Markdown docs: describe the thing as it is, not it
 
 - ALL scripts must be bash/zsh-compatible: avoid bash associative arrays, and be careful with word-splitting and tmux flags like `-t 0`.
 - When cleaning worktrees, handle root-owned Docker artifacts (may need `sudo`).
+
+## Watching a long-running process
+
+- **`pgrep -f` matches the shell running it.** A wrapper that greps for a command string contains that string in its own `/proc/<pid>/cmdline`, so `pgrep -f "manage.py import"` matches itself — an `until`/`while pgrep -f ...` loop (in a `Monitor` command or a background Bash poll) then never exits, and a one-shot check reports a finished process as still running. Bracket a character in the pattern (`[m]anage.py import`) so the literal never matches itself, or match the pid directly (`kill -0 $pid`). Same trap with `ps aux | grep foo`.
+- **Wait on the pid, not on a name.** If I launched the process, capture `$!` and poll `kill -0 "$pid"` (or `wait "$pid"`) — no pattern-matching surface, so it cannot self-match. This is the default whenever the pid is available.
+- **Don't infer completion from process state.** Liveness says something is running, not that the work succeeded. Assert on the artifact — a log line, a row count, an output file — and use the process check only as a supporting signal.
+- **Unbuffer long Python runs.** Python buffers stdout when it isn't a tty, so a `manage.py`-style job redirected to a file can show an empty or stale log while working fine. Use `python -u` or `PYTHONUNBUFFERED=1` so the log is a usable progress signal.
