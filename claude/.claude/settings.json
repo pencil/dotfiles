@@ -119,6 +119,7 @@
     "mode": "hold"
   },
   "skipWorkflowUsageWarning": true,
+  "outputStyle": "ASD-STE100",
   "theme": "dark-daltonized",
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
