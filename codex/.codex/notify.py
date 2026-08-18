@@ -116,16 +116,6 @@ def main() -> int:
             print(f"not sending a push notification for: {notification_type}")
             return 0
 
-    try:
-        subprocess.run(
-            ["bash", os.path.expanduser("~/.codex/codex-tmux-mark.sh"), "off"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        )
-    except Exception:
-        pass
-
     notifier_args = [
         "terminal-notifier",
         "-title",

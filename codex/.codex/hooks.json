@@ -19,44 +19,6 @@
             "type": "command",
             "command": "command -v afplay >/dev/null && afplay ~/.codex/order_sir.m4a || true",
             "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "bash ~/.codex/codex-tmux-mark.sh on",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.codex/codex-tmux-mark.sh off",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.codex/codex-tmux-mark.sh off",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.codex/codex-tmux-mark.sh off",
-            "timeout": 5
           }
         ]
       }
