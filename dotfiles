@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Symlink every top-level dir in this repo into $HOME via GNU Stow.
+# Symlink every Stow package in this repo into $HOME.
 # Each package's layout mirrors its destination under $HOME — e.g.
 # zsh/.zshrc → ~/.zshrc, config/.config/starship.toml → ~/.config/starship.toml.
 #
@@ -21,7 +21,7 @@ fi
 if [[ "${1:-}" == "--clean" ]]; then
   echo "Removing pre-existing symlinks under \$HOME that point into the dotfiles repo."
   # Walk each package and check only the destinations it would stow, instead
-  # of scanning all of $HOME. Skips *.zsh (snippets aren't stowed anyway).
+  # of scanning all of $HOME. Skips source-only directories and *.zsh snippets.
   while IFS= read -r -d '' src; do
     rel=${src#./}
     rel=${rel#*/}                            # drop the package prefix
@@ -31,7 +31,7 @@ if [[ "${1:-}" == "--clean" ]]; then
     case "$target" in
       *.dotfiles/*|*.dotfiles) rm -f "$dst" ;;
     esac
-  done < <(find ./*/ -type f ! -name '*.zsh' ! -path './bootstrap.d/*' -print0 2>/dev/null)
+  done < <(find ./*/ \( -type f -o -type l \) ! -name '*.zsh' ! -path './bootstrap.d/*' ! -path './templates/*' -print0 2>/dev/null)
 fi
 
 # --no-folding stops stow from collapsing intermediate dirs (e.g. ~/.config)
@@ -39,11 +39,11 @@ fi
 # --ignore='\.zsh$' skips auto-sourced snippets so dirs like mise/ or aws/ that
 # only contain those don't link the snippet itself into $HOME.
 # Every non-hidden top-level dir is a package except bootstrap.d/ (post-setup
-# scripts, run below). Adding a real package is still just
-# `mkdir <pkg>/<dotfile path>` and re-running this script — no edit needed here.
+# scripts, run below) and templates/ (shared source files). Adding a real
+# package is still just `mkdir <pkg>/<dotfile path>` and re-running this script.
 packages=()
 for dir in */; do
-  [[ "$dir" == "bootstrap.d/" ]] && continue
+  [[ "$dir" == "bootstrap.d/" || "$dir" == "templates/" ]] && continue
   packages+=("$dir")
 done
 # stow -v logs to stderr, and under --restow it reports an UNLINK+LINK pair for

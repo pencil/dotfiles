@@ -23,7 +23,8 @@ fi
 # Auto-source per-tool config snippets (history opts, env vars, aliases, etc.)
 config_files=($DOTFILES/**/*.zsh)
 for file in $config_files; do
-  source $file
+  [[ "$file" == "$DOTFILES"/templates/* ]] && continue
+  source "$file"
 done
 unset config_files file
 
