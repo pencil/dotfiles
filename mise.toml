@@ -1,0 +1,5 @@
+[env]
+# Loads a different GH_TOKEN only inside this repo, so `gh`/`git push` here
+# use the pencil/dotfiles token instead of the Outset-ai one in hosts.yml.
+# GH_TOKEN takes priority over any token stored in ~/.config/gh/hosts.yml.
+_.file = "~/.config/gh/dotfiles.env"
