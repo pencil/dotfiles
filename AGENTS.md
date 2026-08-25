@@ -4,6 +4,7 @@
 - Each non-hidden top-level directory is either a **GNU Stow package** or a source-only directory excluded by `./dotfiles`. Stow packages mirror the destination relative to `$HOME` — e.g. `zsh/.zshrc` → `~/.zshrc` and `starship/.config/starship.toml` → `~/.config/starship.toml`.
 - `./dotfiles` stows every package while excluding `bootstrap.d/`, `templates/`, and the two agent config fragments described below. Adding an ordinary tool is just `mkdir <tool>/<path-under-$HOME>` and rerunning — no script edits.
 - `claude/.claude/settings.json` and `codex/.codex/config.toml` are portable fragments. `bootstrap.d/agent-configs/agent-configs.sh` recursively merges them into regular local files under `$HOME`; tracked values win, arrays are replaced, and local-only keys survive. Keep Codex MCP servers in the local config.
+- The repository-level `mise.toml` loads `~/.config/gh/dotfiles.env` only while this repository is active. That external dotenv file provides `GH_TOKEN` to GitHub tools.
 - Each `*.zsh` file outside `templates/` is auto-sourced by `zsh/.zshrc`, which globs `$DOTFILES/**/*.zsh`. This is how tool-specific env vars, aliases, and PATH entries get loaded (e.g., `go/path.zsh`, `nvm/nvm.zsh`, `mise/mise.zsh`). `./dotfiles` passes `--ignore='\.zsh$'` to stow so these snippets don't get linked into `$HOME`.
 
 ### Directory inventory

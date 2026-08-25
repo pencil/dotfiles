@@ -9,6 +9,9 @@ Some inspiration drawn by holman's dotfiles.
 Run `./dotfiles` to restow every package into `$HOME` and execute the guarded
 setup steps under `bootstrap.d/`.
 
+The repository-level `mise.toml` loads `~/.config/gh/dotfiles.env` only while
+working in this repository. That dotenv file provides `GH_TOKEN` to GitHub tools.
+
 ## Agent configs
 
 `claude/.claude/settings.json` and `codex/.codex/config.toml` are portable
