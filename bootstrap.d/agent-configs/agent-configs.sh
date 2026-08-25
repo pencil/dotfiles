@@ -5,14 +5,16 @@
 # corresponding local values.
 set -euo pipefail
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-repo_root="$(cd "$script_dir/../.." && pwd)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+repo_root="$(cd "$script_dir/../.." && pwd -P)"
 toml_merger="$script_dir/merge_toml.py"
 
-claude_src="$repo_root/claude/.claude/settings.json"
+claude_src="$script_dir/claude-settings.json"
 claude_dst="$HOME/.claude/settings.json"
-codex_src="$repo_root/codex/.codex/config.toml"
+claude_legacy_src="$repo_root/claude/.claude/settings.json"
+codex_src="$script_dir/codex-config.toml"
 codex_dst="$HOME/.codex/config.toml"
+codex_legacy_src="$repo_root/codex/.codex/config.toml"
 
 command -v jq >/dev/null || {
   echo "jq is required to merge Claude settings; run \`brew bundle\` first." >&2
@@ -26,27 +28,50 @@ fi
 jq -e 'type == "object"' "$claude_src" >/dev/null
 python3 "$toml_merger" --check "$codex_src"
 
+resolve_link_target() {
+  link=$1
+  target=$(readlink "$link") || return 1
+
+  case "$target" in
+    /*) target_path=$target ;;
+    *) target_path=$(dirname "$link")/$target ;;
+  esac
+
+  target_dir=$(dirname "$target_path")
+  target_name=$(basename "$target_path")
+  [[ -d "$target_dir" ]] || return 1
+  printf '%s/%s\n' "$(cd "$target_dir" && pwd -P)" "$target_name"
+}
+
 materialize_config() {
   src=$1
   dst=$2
   name=$3
+  legacy_src=$4
   dst_dir=$(dirname "$dst")
   backup="$dst.pre-dotfiles"
 
   mkdir -p "$dst_dir"
 
   if [[ -L "$dst" ]]; then
-    if [[ ! "$dst" -ef "$src" ]]; then
-      echo "Refusing to replace $dst: it does not link to $src" >&2
+    copy_from=$dst
+    resolved_target=$(resolve_link_target "$dst" || true)
+    if [[ "$dst" -ef "$src" ]]; then
+      :
+    elif [[ "$resolved_target" == "$legacy_src" ]]; then
+      # A checkout update can leave the former fragment symlink dangling.
+      [[ -e "$dst" ]] || copy_from=$src
+    else
+      echo "Refusing to replace $dst: it does not link to a managed $name fragment" >&2
       exit 1
     fi
 
     if [[ ! -e "$backup" && ! -L "$backup" ]]; then
-      cp -p "$dst" "$backup"
+      cp -p "$copy_from" "$backup"
     fi
 
     tmp=$(mktemp "$dst_dir/.$(basename "$dst").materialize.XXXXXX")
-    cp -p "$dst" "$tmp"
+    cp -p "$copy_from" "$tmp"
     mv -f "$tmp" "$dst"
     echo "Materialized $name config at $dst"
   elif [[ ! -e "$dst" ]]; then
@@ -100,7 +125,7 @@ merge_toml() {
   fi
 }
 
-materialize_config "$claude_src" "$claude_dst" "Claude"
-materialize_config "$codex_src" "$codex_dst" "Codex"
+materialize_config "$claude_src" "$claude_dst" "Claude" "$claude_legacy_src"
+materialize_config "$codex_src" "$codex_dst" "Codex" "$codex_legacy_src"
 merge_json "$claude_src" "$claude_dst" "Claude"
 merge_toml "$codex_src" "$codex_dst" "Codex"

@@ -33,9 +33,7 @@ if [[ "${1:-}" == "--clean" ]]; then
       *.dotfiles/*|*.dotfiles) rm -f "$dst" ;;
     esac
   done < <(find ./*/ \( -type f -o -type l \) ! -name '*.zsh' \
-    ! -path './bootstrap.d/*' ! -path './templates/*' \
-    ! -path './claude/.claude/settings.json' \
-    ! -path './codex/.codex/config.toml' -print0 2>/dev/null)
+    ! -path './bootstrap.d/*' ! -path './templates/*' -print0 2>/dev/null)
 fi
 
 # --no-folding stops stow from collapsing intermediate dirs (e.g. ~/.config)
@@ -43,9 +41,8 @@ fi
 # --ignore='\.zsh$' skips auto-sourced snippets so dirs like mise/ or aws/ that
 # only contain those don't link the snippet itself into $HOME.
 # Every non-hidden top-level dir is a package except bootstrap.d/ (post-setup
-# scripts, run below) and templates/ (shared source files). The user-level
-# Claude and Codex configs are portable merge fragments, so their exact paths
-# are ignored while the rest of those packages remains stowed.
+# scripts, run below) and templates/ (shared source files). Adding a real
+# package is still just `mkdir <pkg>/<dotfile path>` and re-running this script.
 packages=()
 for dir in */; do
   [[ "$dir" == "bootstrap.d/" || "$dir" == "templates/" ]] && continue
@@ -58,8 +55,6 @@ done
 stow --target="$HOME" --no-folding \
   --ignore='\.zsh$' \
   --ignore='\.DS_Store$' \
-  --ignore='(^|/)\.claude/settings\.json$' \
-  --ignore='(^|/)\.codex/config\.toml$' \
   --restow -v "${packages[@]}" 2>&1 |
   awk '/^UNLINK: /{u[$2]=1;next} /\(reverts previous action\)$/{delete u[$2];next} {print} END{for(k in u) print "UNLINK: "k}'
 

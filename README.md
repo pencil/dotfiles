@@ -14,9 +14,10 @@ working in this repository. That dotenv file provides `GH_TOKEN` to GitHub tools
 
 ## Agent configs
 
-`claude/.claude/settings.json` and `codex/.codex/config.toml` are portable
-fragments rather than symlink targets. `./dotfiles` recursively merges them into
-the regular files at `~/.claude/settings.json` and `~/.codex/config.toml`.
+`bootstrap.d/agent-configs/claude-settings.json` and
+`bootstrap.d/agent-configs/codex-config.toml` are portable fragments rather than
+symlink targets. `./dotfiles` recursively merges them into the regular files at
+`~/.claude/settings.json` and `~/.codex/config.toml`.
 Fragment values take precedence, including whole arrays; keys that exist only in
 the local files are preserved for machine-specific and application-managed
 state. Codex MCP servers belong only in the local config.
