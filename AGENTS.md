@@ -1,8 +1,10 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Each non-hidden top-level directory is either a **GNU Stow package** or a source-only directory excluded by `./dotfiles`. Stow packages mirror the destination relative to `$HOME` — e.g. `zsh/.zshrc` → `~/.zshrc`, `starship/.config/starship.toml` → `~/.config/starship.toml`, `claude/.claude/settings.json` → `~/.claude/settings.json`.
-- `./dotfiles` stows every package while excluding `bootstrap.d/` and `templates/`. Adding a new tool is just `mkdir <tool>/<path-under-$HOME>` and rerunning — no script edits.
+- Each non-hidden top-level directory is either a **GNU Stow package** or a source-only directory excluded by `./dotfiles`. Stow packages mirror the destination relative to `$HOME` — e.g. `zsh/.zshrc` → `~/.zshrc` and `starship/.config/starship.toml` → `~/.config/starship.toml`.
+- `./dotfiles` stows every package while excluding `bootstrap.d/` and `templates/`. Adding an ordinary tool is just `mkdir <tool>/<path-under-$HOME>` and rerunning — no script edits.
+- `bootstrap.d/agent-configs/claude-settings.json` and `bootstrap.d/agent-configs/codex-config.toml` are portable fragments. `bootstrap.d/agent-configs/agent-configs.sh` recursively merges them into regular local files under `$HOME`; tracked values win, arrays are replaced, and local-only keys survive. Keep Codex MCP servers in the local config.
+- The repository-level `mise.toml` loads `~/.config/gh/dotfiles.env` only while this repository is active. That external dotenv file provides `GH_TOKEN` to GitHub tools.
 - Each `*.zsh` file outside `templates/` is auto-sourced by `zsh/.zshrc`, which globs `$DOTFILES/**/*.zsh`. This is how tool-specific env vars, aliases, and PATH entries get loaded (e.g., `go/path.zsh`, `nvm/nvm.zsh`, `mise/mise.zsh`). `./dotfiles` passes `--ignore='\.zsh$'` to stow so these snippets don't get linked into `$HOME`.
 
 ### Directory inventory
@@ -18,8 +20,9 @@
 | `tmux/` | Tmux config (`.tmux.conf`) |
 | `git/` | Global gitignore + `gitconfig.zsh`, `completion.zsh` snippets |
 | `brew/` | `.Brewfile`, `.Brewfile.lock.json` |
-| `claude/` | Claude Code settings + hook audio files (under `.claude/`) |
-| `codex/` | Codex config + notification script (under `.codex/`) |
+| `claude/` | Claude Code guidance plus stowed hook/audio files (under `.claude/`) |
+| `codex/` | Codex guidance plus stowed hook/notification files (under `.codex/`) |
+| `bootstrap.d/` | Guarded machine setup scripts and their private data files; not stowed |
 | `templates/` | Reusable source files shared by tool configs; not stowed or auto-sourced |
 | `aider/` | Aider conf and conventions |
 | `antidote/` | `.zsh_plugins.txt` for the zsh plugin manager |
@@ -28,7 +31,7 @@
 | `macos/` | macOS system defaults script (`.macos`) |
 
 ## Build, Test, and Development Commands
-- `./dotfiles` runs `stow --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --restow` for every Stow package to recreate its symlinks in `$HOME`. It skips `bootstrap.d/` and `templates/`. Idempotent; safe to rerun. Stow's `--restow` cleanly absorbs file/package renames because it recognizes any symlink whose target is inside this repo as its own.
+- `./dotfiles` restows every package, then runs the executable setup steps under `bootstrap.d/`. It skips source-only directories and `*.zsh` snippets. The agent-config step merges its portable fragments into their local files without deleting keys that are absent from the fragments. Idempotent; safe to rerun.
 - `./dotfiles --clean` is a one-shot migration aid: only needed the first time on a machine that still has symlinks from the previous (Ruby) script. After that, plain `./dotfiles` is all you need.
 - `brew bundle --file=~/.Brewfile` installs or updates formulae, casks, and App Store apps; run `brew bundle cleanup --file=~/.Brewfile` before pruning.
 - `nvim --headless "+Lazy sync" "+qa"` keeps Lua plugin declarations and the lock file aligned after editing `nvim/.config/nvim/`.
@@ -38,7 +41,7 @@
 - Favor lowercase directory names matching the target tool.
 - Shell scripts and Zsh functions stay POSIX-friendly, indent with two spaces, and add descriptive comments only around non-obvious blocks.
 - Lua files follow `stylua` (`nvim/.config/nvim/stylua.toml`), enforcing 2-space indentation and 120-character lines; run `stylua lua/**/*.lua` before committing.
-- Commit changes by editing the real file (e.g. `brew/.Brewfile`) rather than the symlink in `$HOME`.
+- Commit changes by editing the real file (e.g. `brew/.Brewfile`) rather than the symlink in `$HOME`. For agent configs, edit the fragment under `bootstrap.d/agent-configs/` for portable values and the regular file under `$HOME` for machine-local values.
 - New tool init scripts follow the guard pattern: check if the tool is installed, then source/eval (see `mise/mise.zsh`, `nvm/nvm.zsh`, `ruby/chruby.zsh`).
 
 ## Zsh Plugin Management (antidote)

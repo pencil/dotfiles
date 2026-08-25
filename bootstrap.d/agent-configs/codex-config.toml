@@ -1,0 +1,11 @@
+project_doc_fallback_filenames = ["CLAUDE.md"]
+personality = "pragmatic"
+approvals_reviewer = "auto_review"
+model = "gpt-5.6-sol"
+service_tier = "default"
+
+[tui]
+alternate_screen = "never"
+notifications = ["approval-requested"]
+status_line = ["context-used", "model-with-reasoning"]
+terminal_title = ["spinner", "thread-title"]
