@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Symlink every Stow package in this repo into $HOME.
+# Symlink every Stow package in this repo into $HOME, then run the guarded
+# setup steps for files that need machine-aware handling.
 # Each package's layout mirrors its destination under $HOME — e.g.
 # zsh/.zshrc → ~/.zshrc, config/.config/starship.toml → ~/.config/starship.toml.
 #
@@ -31,7 +32,10 @@ if [[ "${1:-}" == "--clean" ]]; then
     case "$target" in
       *.dotfiles/*|*.dotfiles) rm -f "$dst" ;;
     esac
-  done < <(find ./*/ \( -type f -o -type l \) ! -name '*.zsh' ! -path './bootstrap.d/*' ! -path './templates/*' -print0 2>/dev/null)
+  done < <(find ./*/ \( -type f -o -type l \) ! -name '*.zsh' \
+    ! -path './bootstrap.d/*' ! -path './templates/*' \
+    ! -path './claude/.claude/settings.json' \
+    ! -path './codex/.codex/config.toml' -print0 2>/dev/null)
 fi
 
 # --no-folding stops stow from collapsing intermediate dirs (e.g. ~/.config)
@@ -39,8 +43,9 @@ fi
 # --ignore='\.zsh$' skips auto-sourced snippets so dirs like mise/ or aws/ that
 # only contain those don't link the snippet itself into $HOME.
 # Every non-hidden top-level dir is a package except bootstrap.d/ (post-setup
-# scripts, run below) and templates/ (shared source files). Adding a real
-# package is still just `mkdir <pkg>/<dotfile path>` and re-running this script.
+# scripts, run below) and templates/ (shared source files). The user-level
+# Claude and Codex configs are portable merge fragments, so their exact paths
+# are ignored while the rest of those packages remains stowed.
 packages=()
 for dir in */; do
   [[ "$dir" == "bootstrap.d/" || "$dir" == "templates/" ]] && continue
@@ -50,7 +55,12 @@ done
 # every link that was already correct. The awk pass cancels those pairs out so
 # only real changes print: new LINK/MKDIR lines, plus UNLINKs with no matching
 # re-link (a file that left the repo), which are flushed at the end.
-stow --target="$HOME" --no-folding --ignore='\.zsh$' --ignore='\.DS_Store$' --restow -v "${packages[@]}" 2>&1 |
+stow --target="$HOME" --no-folding \
+  --ignore='\.zsh$' \
+  --ignore='\.DS_Store$' \
+  --ignore='(^|/)\.claude/settings\.json$' \
+  --ignore='(^|/)\.codex/config\.toml$' \
+  --restow -v "${packages[@]}" 2>&1 |
   awk '/^UNLINK: /{u[$2]=1;next} /\(reverts previous action\)$/{delete u[$2];next} {print} END{for(k in u) print "UNLINK: "k}'
 
 # Post-stow machine setup that can't be expressed as a symlink (system-binary
