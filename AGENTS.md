@@ -46,6 +46,7 @@
 
 ## Zsh Plugin Management (antidote)
 - Plugins are listed in `antidote/.zsh_plugins.txt` (→ `~/.zsh_plugins.txt`) and loaded by `zsh/.zshrc` via antidote's static-bundle mode (`~/.zsh_plugins.zsh`).
+- antidote itself comes from Homebrew where it exists; elsewhere `bootstrap.d/antidote.sh` clones it into `~/.antidote` at its own pinned SHA. Without it `zsh/.zshrc` loads no plugins at all and the keybindings in `zsh/options.zsh` fail.
 - Every plugin is pinned to a specific commit SHA via `pin:<sha>`. `antidote update` explicitly skips pinned bundles, making installs reproducible and immune to upstream tag/branch movement.
 - **Do not bump pinned versions unless the user explicitly asks.** Treat the SHAs as locked.
 - When the user asks to bump a plugin:
