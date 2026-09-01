@@ -88,6 +88,7 @@ cask 'signal'
 cask 'slack'
 cask 'steam'
 cask 'suspicious-package'
+cask 'tailscale-app'
 cask 'visual-studio-code'
 cask 'vlc'
 mas 'LadioCast', id: 411213048
