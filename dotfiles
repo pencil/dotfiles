@@ -15,7 +15,7 @@ set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 
 if ! command -v stow >/dev/null; then
-  echo "stow not installed — run \`brew bundle\` (or apt install stow) first." >&2
+  echo "stow not installed — run \`brew bundle\` on macOS, or \`sudo apt-get install -y stow\` on Debian/Ubuntu, first." >&2
   exit 1
 fi
 

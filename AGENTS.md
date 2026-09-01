@@ -4,6 +4,7 @@
 - Each non-hidden top-level directory is either a **GNU Stow package** or a source-only directory excluded by `./dotfiles`. Stow packages mirror the destination relative to `$HOME` — e.g. `zsh/.zshrc` → `~/.zshrc` and `starship/.config/starship.toml` → `~/.config/starship.toml`.
 - `./dotfiles` stows every package while excluding `bootstrap.d/` and `templates/`. Adding an ordinary tool is just `mkdir <tool>/<path-under-$HOME>` and rerunning — no script edits.
 - `bootstrap.d/agent-configs/claude-settings.json` and `bootstrap.d/agent-configs/codex-config.toml` are portable fragments. `bootstrap.d/agent-configs/agent-configs.sh` recursively merges them into regular local files under `$HOME`; tracked values win, arrays are replaced, and local-only keys survive. Keep Codex MCP servers in the local config.
+- On a machine with no Homebrew, `bootstrap.d/linux-packages.sh` and `bootstrap.d/linux-user-tools.sh` install what `brew/.Brewfile` covers on macOS: the first takes the distro packages from apt plus `mise` from its own apt repo, the second drops `starship` and `uv` (and the `pre-commit` / `detect-secrets` CLIs `uv` installs) into `~/.local/bin`. Both are guarded, so macOS and non-apt distros fall through untouched. `stow` is the one tool they cannot provide — `./dotfiles` exits before any step runs without it, so it is always the one manual install.
 - The repository-level `mise.toml` loads `~/.config/gh/dotfiles.env` only while this repository is active. That external dotenv file provides `GH_TOKEN` to GitHub tools.
 - Each `*.zsh` file outside `templates/` is auto-sourced by `zsh/.zshrc`, which globs `$DOTFILES/**/*.zsh`. This is how tool-specific env vars, aliases, and PATH entries get loaded (e.g., `go/path.zsh`, `nvm/nvm.zsh`, `mise/mise.zsh`). `./dotfiles` passes `--ignore='\.zsh$'` to stow so these snippets don't get linked into `$HOME`.
 
@@ -32,6 +33,7 @@
 
 ## Build, Test, and Development Commands
 - `./dotfiles` restows every package, then runs the executable setup steps under `bootstrap.d/`. It skips source-only directories and `*.zsh` snippets. The agent-config step merges its portable fragments into their local files without deleting keys that are absent from the fragments. Idempotent; safe to rerun.
+- On Linux the bootstrap steps install system packages, so `./dotfiles` can prompt for a sudo password on a fresh machine. Once everything is present the steps make no apt calls at all.
 - `./dotfiles --clean` is a one-shot migration aid: only needed the first time on a machine that still has symlinks from the previous (Ruby) script. After that, plain `./dotfiles` is all you need.
 - `brew bundle --file=~/.Brewfile` installs or updates formulae, casks, and App Store apps; run `brew bundle cleanup --file=~/.Brewfile` before pruning.
 - `nvim --headless "+Lazy sync" "+qa"` keeps Lua plugin declarations and the lock file aligned after editing `nvim/.config/nvim/`.
