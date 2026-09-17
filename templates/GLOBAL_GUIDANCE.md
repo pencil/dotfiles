@@ -63,6 +63,16 @@ Same rules for docstrings and Markdown docs: describe the thing as it is, not it
 - ALL scripts must be bash/zsh-compatible: avoid bash associative arrays, and be careful with word-splitting and tmux flags like `-t 0`.
 - When cleaning worktrees, handle root-owned Docker artifacts (may need `sudo`).
 
+## Sandboxed CLI failures
+
+- If a networked or authenticated CLI—especially `gh`—reports an authentication,
+  credential, or connectivity failure from sandboxed execution, retry the same
+  diagnostic outside the sandbox before asking me to log in or change credentials.
+  Treat the sandbox result as environment-suspect until the unsandboxed result
+  corroborates it.
+- Never claim that my credentials are invalid based only on sandboxed command
+  output.
+
 ## Watching a long-running process
 
 - **`pgrep -f` matches the shell running it.** A wrapper that greps for a command string contains that string in its own `/proc/<pid>/cmdline`, so `pgrep -f "manage.py import"` matches itself — an `until`/`while pgrep -f ...` loop (in a `Monitor` command or a background Bash poll) then never exits, and a one-shot check reports a finished process as still running. Bracket a character in the pattern (`[m]anage.py import`) so the literal never matches itself, or match the pid directly (`kill -0 $pid`). Same trap with `ps aux | grep foo`.
