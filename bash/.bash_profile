@@ -8,8 +8,12 @@ export HISTSIZE=3000
 export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT="%F %T "
 
-if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then
-  . $(brew --prefix)/share/bash-completion/bash_completion
+if command -v brew >/dev/null 2>&1; then
+  bash_completion="$(brew --prefix)/share/bash-completion/bash_completion"
+  if [ -f "$bash_completion" ]; then
+    . "$bash_completion"
+  fi
+  unset bash_completion
 fi
 
 export ACLOCAL_FLAGS="-I/usr/local/share/aclocal $ACLOCAL_FLAGS"
