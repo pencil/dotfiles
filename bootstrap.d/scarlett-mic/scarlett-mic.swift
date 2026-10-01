@@ -141,29 +141,38 @@ final class Forwarder {
       log("aggregate device creation failed: \(status)")
       return false
     }
-    // CoreAudio lists an aggregate's IO buffers in the order of its active
-    // sub-devices, and that order is not guaranteed to survive a device restart
-    // (Chrome restarts both devices when a call's audio pipeline starts). Locate
-    // the Scarlett's input buffer and the cable's output buffer by matching
-    // sub-device UIDs, so a reordering can never make the callback read the
-    // cable's own input (a silent loop) or write into the Scarlett's output
-    // (which the interface mirrors to its loopback channels).
-    let active = objectIDs(agg, kAudioAggregateDevicePropertyActiveSubDeviceList)
-    func bufferIndex(ofUID uid: String, _ scope: AudioObjectPropertyScope) -> Int? {
-      var index = 0
-      for sub in active {
-        let streams = objectIDs(sub, kAudioDevicePropertyStreams, scope).count
-        if string(sub, kAudioDevicePropertyDeviceUID) == uid { return streams > 0 ? index : nil }
-        index += streams
-      }
-      return nil
+    // The callback receives one buffer per aggregate stream, in the aggregate's
+    // own stream order. That order does not always follow the sub-device list
+    // and can change when a device re-enumerates, so the sub-device list cannot
+    // be used to place the buffers. Identify the Scarlett's input buffer by its
+    // channel count, which is unique among the members, and place the cable's
+    // output buffer by the matching sub-device position. Reading the wrong input
+    // buffer binds the callback to the cable's own input, a silent loop.
+    func streamChannels(_ stream: AudioObjectID) -> Int {
+      var a = address(kAudioStreamPropertyVirtualFormat)
+      var format = AudioStreamBasicDescription()
+      var size = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
+      guard AudioObjectGetPropertyData(stream, &a, 0, nil, &size, &format) == noErr else { return -1 }
+      return Int(format.mChannelsPerFrame)
     }
-    guard let inputIndex = bufferIndex(ofUID: inputUID, kAudioObjectPropertyScopeInput),
-          let outputIndex = bufferIndex(ofUID: outputUID, kAudioObjectPropertyScopeOutput) else {
-      log("could not locate \(inputName) input / \(outputName) output in the aggregate")
+    let inStreams = objectIDs(agg, kAudioDevicePropertyStreams, kAudioObjectPropertyScopeInput)
+    let outStreams = objectIDs(agg, kAudioDevicePropertyStreams, kAudioObjectPropertyScopeOutput)
+    let inChannels = inStreams.map(streamChannels)
+    let outChannels = outStreams.map(streamChannels)
+    let scarlettChannels = objectIDs(inputDevice, kAudioDevicePropertyStreams, kAudioObjectPropertyScopeInput)
+      .map(streamChannels).reduce(0, +)
+    log("aggregate input buffers \(inChannels), output buffers \(outChannels); \(inputName) has \(scarlettChannels) input channels")
+    // Each member contributes one stream per scope, in the same member order for
+    // both scopes, so the Scarlett's output buffer sits at its input position and
+    // the cable's output buffer is the other one.
+    guard inStreams.count == 2, outStreams.count == 2,
+          let inputIndex = inChannels.firstIndex(of: scarlettChannels),
+          inChannels.filter({ $0 == scarlettChannels }).count == 1 else {
+      log("could not identify the \(inputName) input buffer; retrying")
       AudioHardwareDestroyAggregateDevice(agg)
       return false
     }
+    let outputIndex = 1 - inputIndex
 
     var proc: AudioDeviceIOProcID?
     status = AudioDeviceCreateIOProcIDWithBlock(&proc, agg, nil) { _, inputData, _, outputData, _ in
