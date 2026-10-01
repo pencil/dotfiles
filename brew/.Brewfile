@@ -92,6 +92,5 @@ cask 'suspicious-package'
 cask 'tailscale-app'
 cask 'visual-studio-code'
 cask 'vlc'
-mas 'LadioCast', id: 411213048
 mas 'Pixelmator Pro', id: 1289583905
 mas 'The Unarchiver', id: 425424353
