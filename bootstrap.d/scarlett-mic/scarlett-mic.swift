@@ -141,11 +141,26 @@ final class Forwarder {
       log("aggregate device creation failed: \(status)")
       return false
     }
-    // The aggregate's streams are the sub-devices' streams in list order, so the
-    // cable's output buffer sits right after the Scarlett's own output streams.
-    let cableOutputIndex = objectIDs(inputDevice, kAudioDevicePropertyStreams, kAudioObjectPropertyScopeOutput).count
-    guard objectIDs(agg, kAudioDevicePropertyStreams, kAudioObjectPropertyScopeOutput).count > cableOutputIndex else {
-      log("unexpected stream layout, cable expected at output stream \(cableOutputIndex)")
+    // CoreAudio lists an aggregate's IO buffers in the order of its active
+    // sub-devices, and that order is not guaranteed to survive a device restart
+    // (Chrome restarts both devices when a call's audio pipeline starts). Locate
+    // the Scarlett's input buffer and the cable's output buffer by matching
+    // sub-device UIDs, so a reordering can never make the callback read the
+    // cable's own input (a silent loop) or write into the Scarlett's output
+    // (which the interface mirrors to its loopback channels).
+    let active = objectIDs(agg, kAudioAggregateDevicePropertyActiveSubDeviceList)
+    func bufferIndex(ofUID uid: String, _ scope: AudioObjectPropertyScope) -> Int? {
+      var index = 0
+      for sub in active {
+        let streams = objectIDs(sub, kAudioDevicePropertyStreams, scope).count
+        if string(sub, kAudioDevicePropertyDeviceUID) == uid { return streams > 0 ? index : nil }
+        index += streams
+      }
+      return nil
+    }
+    guard let inputIndex = bufferIndex(ofUID: inputUID, kAudioObjectPropertyScopeInput),
+          let outputIndex = bufferIndex(ofUID: outputUID, kAudioObjectPropertyScopeOutput) else {
+      log("could not locate \(inputName) input / \(outputName) output in the aggregate")
       AudioHardwareDestroyAggregateDevice(agg)
       return false
     }
@@ -156,15 +171,16 @@ final class Forwarder {
       let inputs = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: inputData))
       let outputs = UnsafeMutableAudioBufferListPointer(outputData)
       // Silence every output stream, including the Scarlett's own, which the HAL
-      // mixes with other apps; then overwrite the cable with Input 1 on all channels.
+      // mixes with other apps; then write Input 1 into the cable alone.
       for buffer in outputs {
         if let data = buffer.mData { memset(data, 0, Int(buffer.mDataByteSize)) }
       }
-      guard let input = inputs.first, let source = input.mData,
-            outputs.count > cableOutputIndex, let destination = outputs[cableOutputIndex].mData else { return }
-      let inChannels = Int(input.mNumberChannels)
-      let outChannels = Int(outputs[cableOutputIndex].mNumberChannels)
-      let frames = min(Int(input.mDataByteSize) / 4 / inChannels, Int(outputs[cableOutputIndex].mDataByteSize) / 4 / outChannels)
+      guard inputs.count > inputIndex, outputs.count > outputIndex,
+            let source = inputs[inputIndex].mData, let destination = outputs[outputIndex].mData else { return }
+      let inChannels = Int(inputs[inputIndex].mNumberChannels)
+      let outChannels = Int(outputs[outputIndex].mNumberChannels)
+      let frames = min(Int(inputs[inputIndex].mDataByteSize) / 4 / inChannels,
+                       Int(outputs[outputIndex].mDataByteSize) / 4 / outChannels)
       let src = source.assumingMemoryBound(to: Float.self)
       let dst = destination.assumingMemoryBound(to: Float.self)
       let mute = self.paused.load(ordering: .relaxed)
@@ -195,7 +211,7 @@ final class Forwarder {
     running = true
     announcedWait = false
     lastCount = callbacks.load(ordering: .relaxed)
-    log("routing \(inputName) channel 1 -> \(outputName)")
+    log("routing \(inputName) channel 1 (input buffer \(inputIndex)) -> \(outputName) (output buffer \(outputIndex))")
     return true
   }
 
@@ -210,6 +226,14 @@ final class Forwarder {
     aggregate = 0
     running = false
   }
+
+  /// Tears the aggregate down and builds it fresh, rediscovering the buffer
+  /// layout. The menu's Restart item uses this to recover at once instead of
+  /// waiting for the stall timer.
+  func restart() {
+    stop()
+    _ = start()
+  }
 }
 
 // MARK: Menu bar
@@ -220,6 +244,7 @@ final class StatusController: NSObject {
   private let statusLine = NSMenuItem(title: "", action: nil, keyEquivalent: "")
   private let levelLine = NSMenuItem(title: "", action: nil, keyEquivalent: "")
   private let pauseItem = NSMenuItem(title: "Pause", action: #selector(togglePause), keyEquivalent: "")
+  private let restartItem = NSMenuItem(title: "Restart", action: #selector(restartForwarding), keyEquivalent: "")
   private var loudUntil = Date.distantPast
 
   init(forwarder: Forwarder) {
@@ -230,10 +255,12 @@ final class StatusController: NSObject {
     statusLine.isEnabled = false
     levelLine.isEnabled = false
     pauseItem.target = self
+    restartItem.target = self
     menu.addItem(statusLine)
     menu.addItem(levelLine)
     menu.addItem(.separator())
     menu.addItem(pauseItem)
+    menu.addItem(restartItem)
     item.menu = menu
     refresh()
   }
@@ -242,6 +269,12 @@ final class StatusController: NSObject {
     let now = forwarder.paused.load(ordering: .relaxed)
     forwarder.paused.store(!now, ordering: .relaxed)
     log(now ? "resumed" : "paused")
+    refresh()
+  }
+
+  @objc private func restartForwarding() {
+    log("restart requested")
+    forwarder.restart()
     refresh()
   }
 
