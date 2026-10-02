@@ -18,6 +18,15 @@
 // output together). IOProcIDs survive that restart. The legacy function-pointer
 // API used by sox and LadioCast does not, which is why those die mid-call.
 //
+// Why the duck check: macOS voice processing (VoiceProcessingIO, which Firefox,
+// Safari and many call apps use for echo cancellation) ducks the call's output
+// device, here the Scarlett, by about 30 dB, and that includes everyone reading
+// its input. Firefox releases the duck right away and other apps when they
+// stop, but a reader that was already running can miss the release and stay
+// 30 dB down until it is rebuilt, so the call hears the voice that quiet.
+// Readers started later are unaffected, so the forwarder briefly opens a fresh
+// one every few seconds and rebuilds its IO when its own input is far quieter.
+//
 // The menu bar icon is outline while quiet, filled while Input 1 carries voice,
 // slashed while paused, and badged when a device is missing. Pause writes
 // silence to the cable and is never remembered across a relaunch. There is no
@@ -80,6 +89,13 @@ final class Forwarder {
   /// Bit pattern of the largest |sample| on channel 1 since the last readPeak().
   /// Non-negative floats order like their bit patterns, so an integer max works.
   private let peakBits = Atomic<UInt32>(0)
+  /// Channel 1 peaks of the forwarder and of the fresh reference reader over
+  /// one duck check window, in the same bit-pattern form.
+  private let windowPeakBits = Atomic<UInt32>(0)
+  private let referencePeakBits = Atomic<UInt32>(0)
+  private var reference: AudioDeviceIOProcID?
+  private var referenceDevice: AudioObjectID = 0
+  private var duckChecks = 0
   private var aggregate: AudioObjectID = 0
   private var ioProc: AudioDeviceIOProcID?
   private var lastCount = 0
@@ -184,12 +200,11 @@ final class Forwarder {
       for buffer in outputs {
         if let data = buffer.mData { memset(data, 0, Int(buffer.mDataByteSize)) }
       }
-      // Identify the buffers on every cycle, not once at start. The aggregate
-      // can reorder its streams under a running callback across a sleep/wake or
-      // a device re-enumeration, with no restart to re-read a cached index,
-      // which would leave us reading the cable's own input, a silent loop. The
-      // Scarlett is the input buffer whose channel count is unique among the
-      // members; the cable's output is the member counterpart of the other input.
+      // Identify the buffers on every cycle rather than trusting the indexes
+      // found at start, so a changed stream order can never leave us reading
+      // the cable's own input. The Scarlett is the input buffer whose channel
+      // count is unique among the members; the cable's output is the member
+      // counterpart of the other input.
       guard inputs.count == 2, outputs.count == 2 else { return }
       let scarIn = Int(inputs[0].mNumberChannels) == scarlettChannels ? 0 : 1
       let cableOut = 1 - scarIn
@@ -211,6 +226,7 @@ final class Forwarder {
         }
       }
       self.peakBits.max(peak.bitPattern, ordering: .relaxed)
+      self.windowPeakBits.max(peak.bitPattern, ordering: .relaxed)
     }
     guard status == noErr, let proc else {
       log("IOProc creation failed: \(status)")
@@ -235,6 +251,7 @@ final class Forwarder {
 
   private func stop() {
     guard running else { return }
+    stopReference()
     if let proc = ioProc {
       AudioDeviceStop(aggregate, proc)
       AudioDeviceDestroyIOProcID(aggregate, proc)
@@ -243,6 +260,50 @@ final class Forwarder {
     ioProc = nil
     aggregate = 0
     running = false
+  }
+
+  /// Runs once a second. Every fifth tick it opens a fresh reader on the input
+  /// device, and on the next tick compares the two channel 1 peaks over that
+  /// second. A stuck duck reads about 30 dB down, normal jitter within 15 dB,
+  /// so it restarts below a tenth (-20 dB). Room noise alone peaks well above
+  /// the -60 dBFS floor, so this also works between words.
+  func checkDuck() {
+    guard running else { return }
+    duckChecks += 1
+    if reference != nil {
+      stopReference()
+      let fresh = Float(bitPattern: referencePeakBits.load(ordering: .relaxed))
+      let ours = Float(bitPattern: windowPeakBits.load(ordering: .relaxed))
+      guard fresh > 1e-3, ours < fresh / 10 else { return }
+      log(String(format: "input ducked (%.0f dBFS, a fresh reader gets %.0f dBFS), restarting", 20 * log10(ours), 20 * log10(fresh)))
+      restart()
+    } else if duckChecks % 5 == 0, let device = device(named: inputPrefix) {
+      windowPeakBits.store(0, ordering: .relaxed)
+      referencePeakBits.store(0, ordering: .relaxed)
+      var proc: AudioDeviceIOProcID?
+      let status = AudioDeviceCreateIOProcIDWithBlock(&proc, device, nil) { _, inputData, _, _, _ in
+        let inputs = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: inputData))
+        guard let first = inputs.first, let data = first.mData, first.mNumberChannels > 0 else { return }
+        let samples = data.assumingMemoryBound(to: Float.self)
+        var peak: Float = 0
+        for i in stride(from: 0, to: Int(first.mDataByteSize) / 4, by: Int(first.mNumberChannels)) { peak = max(peak, abs(samples[i])) }
+        self.referencePeakBits.max(peak.bitPattern, ordering: .relaxed)
+      }
+      guard status == noErr, let proc else { return }
+      guard AudioDeviceStart(device, proc) == noErr else {
+        AudioDeviceDestroyIOProcID(device, proc)
+        return
+      }
+      reference = proc
+      referenceDevice = device
+    }
+  }
+
+  private func stopReference() {
+    guard let proc = reference else { return }
+    AudioDeviceStop(referenceDevice, proc)
+    AudioDeviceDestroyIOProcID(referenceDevice, proc)
+    reference = nil
   }
 
   /// Tears the aggregate down and builds it fresh, rediscovering the buffer
@@ -347,7 +408,9 @@ AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &de
 }
 let supervisor = Timer(timeInterval: 5, repeats: true) { _ in forwarder.tick(checkStall: true) }
 let meter = Timer(timeInterval: 0.1, repeats: true) { _ in controller.refresh() }
+let duckCheck = Timer(timeInterval: 1, repeats: true) { _ in forwarder.checkDuck() }
 RunLoop.main.add(supervisor, forMode: .common)
+RunLoop.main.add(duckCheck, forMode: .common)
 RunLoop.main.add(meter, forMode: .common)
 signal(SIGINT) { _ in exit(0) }
 signal(SIGTERM) { _ in exit(0) }
