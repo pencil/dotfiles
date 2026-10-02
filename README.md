@@ -18,7 +18,10 @@ working in this repository. That dotenv file provides `GH_TOKEN` to GitHub tools
 the Focusrite Scarlett Solo into VB-Cable, so apps that would otherwise mix in
 the interface's Loopback channels get a clean microphone. `./dotfiles` compiles
 it into `~/.local/bin` with the Swift toolchain, renders its launchd plist into
-`~/Library/LaunchAgents`, and keeps it running. The menu bar icon shows the
+`~/Library/LaunchAgents`, and keeps it running. It signs the binary with an
+Apple Development certificate when the keychain has one, so macOS keeps the
+microphone permission across rebuilds. Without one, macOS asks again after each
+code change, and the agent has no audio until you answer. The menu bar icon shows the
 state and can pause forwarding. The Swift file's header explains the design and
 the one-line check. The step is skipped on Linux and on Macs without `swiftc`.
 
