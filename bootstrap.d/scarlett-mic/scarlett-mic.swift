@@ -28,7 +28,8 @@
 // one every few seconds and rebuilds its IO when its own input is far quieter.
 //
 // The menu bar icon is outline while quiet, filled while Input 1 carries voice,
-// slashed while paused, and badged when a device is missing. Pause writes
+// slashed while paused, and badged when a device is missing. Its menu shows
+// input meters, the latest duck check, and IO and restart stats. Pause writes
 // silence to the cable and is never remembered across a relaunch. There is no
 // Quit: launchd keeps the process alive, and ./dotfiles reloads it.
 //
@@ -57,6 +58,13 @@ func string(_ object: AudioObjectID, _ selector: AudioObjectPropertySelector) ->
   var size = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
   guard AudioObjectGetPropertyData(object, &a, 0, nil, &size, &value) == noErr, let value else { return "" }
   return value.takeRetainedValue() as String
+}
+
+func value<T: BitwiseCopyable>(_ object: AudioObjectID, _ selector: AudioObjectPropertySelector, _ scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal, default fallback: T) -> T {
+  var a = address(selector, scope)
+  var result = fallback
+  var size = UInt32(MemoryLayout<T>.size)
+  return AudioObjectGetPropertyData(object, &a, 0, nil, &size, &result) == noErr ? result : fallback
 }
 
 func objectIDs(_ object: AudioObjectID, _ selector: AudioObjectPropertySelector, _ scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal) -> [AudioObjectID] {
@@ -93,6 +101,10 @@ final class Forwarder {
   /// one duck check window, in the same bit-pattern form.
   private let windowPeakBits = Atomic<UInt32>(0)
   private let referencePeakBits = Atomic<UInt32>(0)
+  /// Sum of squared channel 1 samples in fixed point (2^40 per unit), and the
+  /// number of frames summed, since the last readRMS().
+  private let squareSum = Atomic<UInt64>(0)
+  private let squareFrames = Atomic<Int>(0)
   private var reference: AudioDeviceIOProcID?
   private var referenceDevice: AudioObjectID = 0
   private var duckChecks = 0
@@ -100,6 +112,19 @@ final class Forwarder {
   private var ioProc: AudioDeviceIOProcID?
   private var lastCount = 0
   private var announcedWait = false
+  /// Why the forwarder last stopped, so the next successful start counts as a
+  /// restart for the menu; nil for the first start.
+  private var pendingReason: String?
+
+  // Stats for the menu.
+  private(set) var startedAt = Date()
+  private(set) var callbacksAtStart = 0
+  private(set) var formatLines: [String] = []
+  private(set) var restarts = 0
+  private(set) var lastRestart = ""
+  private(set) var overloads = 0
+  private(set) var lastCheck: (ours: Float, fresh: Float)?
+  var callbackCount: Int { callbacks.load(ordering: .relaxed) }
 
   init(inputPrefix: String, outputPrefix: String) {
     self.inputPrefix = inputPrefix
@@ -110,6 +135,12 @@ final class Forwarder {
 
   func readPeak() -> Float { Float(bitPattern: peakBits.exchange(0, ordering: .relaxed)) }
 
+  func readRMS() -> Float {
+    let frames = squareFrames.exchange(0, ordering: .relaxed)
+    let sum = squareSum.exchange(0, ordering: .relaxed)
+    return frames > 0 ? Float((Double(sum) / 0x1p40 / Double(frames)).squareRoot()) : 0
+  }
+
   /// Starts when waiting and both devices exist, restarts after a stall, and
   /// stops when a device vanished. `checkStall` is only true from the periodic
   /// timer, because a tick right after start() would see no callbacks yet.
@@ -117,14 +148,14 @@ final class Forwarder {
     if running {
       if !devicesPresent {
         log("a device disappeared")
+        pendingReason = "device"
         stop()
         return
       }
       let count = callbacks.load(ordering: .relaxed)
       if checkStall, count == lastCount {
         log("IO stalled, restarting")
-        stop()
-        _ = start()
+        restart("stall")
       }
       lastCount = count
     } else if devicesPresent {
@@ -218,15 +249,19 @@ final class Forwarder {
       let dst = destination.assumingMemoryBound(to: Float.self)
       let mute = self.paused.load(ordering: .relaxed)
       var peak: Float = 0
+      var squares: Float = 0
       for frame in 0..<frames {
         let sample = src[frame * inChannels]
         peak = max(peak, abs(sample))
+        squares += sample * sample
         if !mute {
           for channel in 0..<outChannels { dst[frame * outChannels + channel] = sample }
         }
       }
       self.peakBits.max(peak.bitPattern, ordering: .relaxed)
       self.windowPeakBits.max(peak.bitPattern, ordering: .relaxed)
+      self.squareSum.add(UInt64(Double(squares) * 0x1p40), ordering: .relaxed)
+      self.squareFrames.add(frames, ordering: .relaxed)
     }
     guard status == noErr, let proc else {
       log("IOProc creation failed: \(status)")
@@ -245,6 +280,31 @@ final class Forwarder {
     running = true
     announcedWait = false
     lastCount = callbacks.load(ordering: .relaxed)
+
+    // The listener is destroyed with the aggregate.
+    var overload = address(kAudioDeviceProcessorOverload)
+    AudioObjectAddPropertyListenerBlock(agg, &overload, DispatchQueue.main) { _, _ in self.overloads += 1 }
+    let rate = value(agg, kAudioDevicePropertyNominalSampleRate, default: Float64(0))
+    let bufferFrames = value(agg, kAudioDevicePropertyBufferFrameSize, default: UInt32(0))
+    func latency(_ scope: AudioObjectPropertyScope) -> Double {
+      let frames = value(agg, kAudioDevicePropertyLatency, scope, default: UInt32(0))
+        + value(agg, kAudioDevicePropertySafetyOffset, scope, default: UInt32(0))
+      return rate > 0 ? Double(frames) / rate * 1000 : 0
+    }
+    formatLines = [
+      String(format: "%g kHz · buffer %u frames (%.1f ms)", rate / 1000, bufferFrames, rate > 0 ? Double(bufferFrames) / rate * 1000 : 0),
+      String(format: "Latency in %.1f / out %.1f ms · %d → %d ch",
+             latency(kAudioObjectPropertyScopeInput), latency(kAudioObjectPropertyScopeOutput), scarlettChannels, outChannels[outputIndex]),
+    ]
+    startedAt = Date()
+    callbacksAtStart = lastCount
+    if let reason = pendingReason {
+      let clock = DateFormatter()
+      clock.dateFormat = "HH:mm"
+      restarts += 1
+      lastRestart = "\(reason) at \(clock.string(from: startedAt))"
+      pendingReason = nil
+    }
     log("routing \(inputName) channel 1 (input buffer \(inputIndex)) -> \(outputName) (output buffer \(outputIndex))")
     return true
   }
@@ -274,9 +334,10 @@ final class Forwarder {
       stopReference()
       let fresh = Float(bitPattern: referencePeakBits.load(ordering: .relaxed))
       let ours = Float(bitPattern: windowPeakBits.load(ordering: .relaxed))
+      lastCheck = (ours, fresh)
       guard fresh > 1e-3, ours < fresh / 10 else { return }
       log(String(format: "input ducked (%.0f dBFS, a fresh reader gets %.0f dBFS), restarting", 20 * log10(ours), 20 * log10(fresh)))
-      restart()
+      restart("duck")
     } else if duckChecks % 5 == 0, let device = device(named: inputPrefix) {
       windowPeakBits.store(0, ordering: .relaxed)
       referencePeakBits.store(0, ordering: .relaxed)
@@ -309,7 +370,8 @@ final class Forwarder {
   /// Tears the aggregate down and builds it fresh, rediscovering the buffer
   /// layout. The menu's Restart item uses this to recover at once instead of
   /// waiting for the stall timer.
-  func restart() {
+  func restart(_ reason: String) {
+    pendingReason = reason
     stop()
     _ = start()
   }
@@ -317,31 +379,114 @@ final class Forwarder {
 
 // MARK: Menu bar
 
+func dB(_ amplitude: Float) -> Float { amplitude > 0 ? 20 * log10(amplitude) : -.infinity }
+
+func dBText(_ level: Float) -> String { level.isFinite ? String(format: "%6.1f dBFS", max(level, -99.9)) : "    silent" }
+
+/// A menu row with a fixed-width name, a bar over -60...0 dBFS that turns
+/// yellow above -12 and red above -6, and a fixed-width value, so nothing
+/// shifts sideways as the numbers change.
+final class MeterRow: NSView {
+  static let font = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
+  private let bar = NSLevelIndicator(frame: NSRect(x: 76, y: 5, width: 160, height: 12))
+  private let value = NSTextField(labelWithString: "")
+
+  init(_ name: String) {
+    super.init(frame: NSRect(x: 0, y: 0, width: 340, height: 22))
+    let label = NSTextField(labelWithString: name)
+    label.frame = NSRect(x: 18, y: 3, width: 56, height: 16)
+    value.frame = NSRect(x: 242, y: 3, width: 90, height: 16)
+    for field in [label, value] {
+      field.font = Self.font
+      field.textColor = .secondaryLabelColor
+      addSubview(field)
+    }
+    bar.levelIndicatorStyle = .continuousCapacity
+    bar.minValue = 0
+    bar.maxValue = 60
+    bar.warningValue = 48
+    bar.criticalValue = 54
+    addSubview(bar)
+  }
+
+  required init?(coder: NSCoder) { fatalError("not used") }
+
+  func show(_ level: Float) {
+    bar.doubleValue = level.isFinite ? Double(min(max(level + 60, 0), 60)) : 0
+    value.stringValue = dBText(level)
+  }
+}
+
 final class StatusController: NSObject {
   private let forwarder: Forwarder
   private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
   private let statusLine = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-  private let levelLine = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+  private let peakRow = MeterRow("Peak")
+  private let holdRow = MeterRow("Hold")
+  private let rmsRow = MeterRow("RMS")
+  private let checkLine = NSMenuItem()
+  private let oursRow = MeterRow("Ours")
+  private let freshRow = MeterRow("Fresh")
+  private let uptimeLine = NSMenuItem()
+  private let restartsLine = NSMenuItem()
+  private let formatLine = NSMenuItem()
+  private let latencyLine = NSMenuItem()
+  private let callbacksLine = NSMenuItem()
+  private var statsItems: [NSMenuItem] = []
   private let pauseItem = NSMenuItem(title: "Pause", action: #selector(togglePause), keyEquivalent: "")
   private let restartItem = NSMenuItem(title: "Restart", action: #selector(restartForwarding), keyEquivalent: "")
   private var loudUntil = Date.distantPast
+  // Meter ballistics: the shown peak rises at once and falls at 60 dB/s, RMS
+  // is a 100 ms average, and the hold keeps the highest peak for 3 s.
+  private var shownPeak = -Float.infinity
+  private var meanSquare: Float = 0
+  private var hold = -Float.infinity
+  private var holdUntil = Date.distantPast
+  private var lastTick = Date()
+  private var menuOpen = false
+  private var callbackRate = 0.0
+  private var rateSample = (count: 0, at: Date())
 
   init(forwarder: Forwarder) {
     self.forwarder = forwarder
     super.init()
     let menu = NSMenu()
     menu.autoenablesItems = false
+    menu.delegate = self
     statusLine.isEnabled = false
-    levelLine.isEnabled = false
     pauseItem.target = self
     restartItem.target = self
+    func row(_ view: NSView) -> NSMenuItem {
+      let item = NSMenuItem()
+      item.view = view
+      return item
+    }
+    statsItems = [
+      .separator(), row(peakRow), row(holdRow), row(rmsRow),
+      .separator(), checkLine, row(oursRow), row(freshRow),
+      .separator(), uptimeLine, restartsLine, formatLine, latencyLine, callbacksLine,
+    ]
     menu.addItem(statusLine)
-    menu.addItem(levelLine)
+    for stat in statsItems {
+      stat.isEnabled = false
+      menu.addItem(stat)
+    }
     menu.addItem(.separator())
     menu.addItem(pauseItem)
     menu.addItem(restartItem)
     item.menu = menu
     refresh()
+  }
+
+  private func show(_ item: NSMenuItem, _ text: String) {
+    item.attributedTitle = NSAttributedString(string: text, attributes: [.font: MeterRow.font, .foregroundColor: NSColor.secondaryLabelColor])
+  }
+
+  private func duration(_ interval: TimeInterval) -> String {
+    let s = Int(interval)
+    if s >= 3600 { return String(format: "%dh %02dm", s / 3600, s / 60 % 60) }
+    if s >= 60 { return String(format: "%dm %02ds", s / 60, s % 60) }
+    return "\(s)s"
   }
 
   @objc private func togglePause() {
@@ -353,16 +498,33 @@ final class StatusController: NSObject {
 
   @objc private func restartForwarding() {
     log("restart requested")
-    forwarder.restart()
+    forwarder.restart("manual")
     refresh()
   }
 
-  /// Runs every 100 ms, also while the menu is open.
+  /// Runs 30 times a second, also while the menu is open. The rows only
+  /// redraw while the menu is open.
   func refresh() {
-    let peak = forwarder.readPeak()
-    let dBFS = peak > 0 ? 20 * log10(peak) : -Float.infinity
+    let now = Date()
+    let dt = Float(min(now.timeIntervalSince(lastTick), 0.5))
+    lastTick = now
+    let dBFS = dB(forwarder.readPeak())
     // Room noise peaks around -35 dBFS; speech sits well above -25.
-    if dBFS > -25 { loudUntil = Date().addingTimeInterval(0.3) }
+    if dBFS > -25 { loudUntil = now.addingTimeInterval(0.3) }
+    shownPeak = max(dBFS, shownPeak - 60 * dt)
+    let rms = forwarder.readRMS()
+    meanSquare += (rms * rms - meanSquare) * min(1, dt / 0.1)
+    if dBFS >= hold || now > holdUntil {
+      hold = dBFS
+      holdUntil = now.addingTimeInterval(3)
+    }
+    let count = forwarder.callbackCount
+    let elapsed = now.timeIntervalSince(rateSample.at)
+    if elapsed >= 1 {
+      callbackRate = Double(count - rateSample.count) / elapsed
+      rateSample = (count, now)
+    }
+
     let paused = forwarder.paused.load(ordering: .relaxed)
     let symbol: String
     let text: String
@@ -373,7 +535,7 @@ final class StatusController: NSObject {
       symbol = "mic.slash.fill"
       text = "Paused"
     } else {
-      symbol = Date() < loudUntil ? "mic.fill" : "mic"
+      symbol = now < loudUntil ? "mic.fill" : "mic"
       text = "\(forwarder.inputName) channel 1 → \(forwarder.outputName)"
     }
     if item.button?.image?.name() != symbol {
@@ -381,12 +543,40 @@ final class StatusController: NSObject {
       image?.setName(symbol)
       item.button?.image = image
     }
+    guard menuOpen else { return }
+
     statusLine.title = text
-    levelLine.isHidden = !forwarder.running || paused
-    levelLine.title = peak > 0 ? String(format: "Input level: %.0f dBFS", dBFS) : "Input level: silent"
     pauseItem.title = paused ? "Resume" : "Pause"
     pauseItem.isEnabled = forwarder.running
+    for stat in statsItems { stat.isHidden = !forwarder.running }
+    peakRow.show(shownPeak)
+    holdRow.show(hold)
+    rmsRow.show(dB(meanSquare.squareRoot()))
+    if let check = forwarder.lastCheck {
+      let ours = dB(check.ours), fresh = dB(check.fresh)
+      show(checkLine, ours.isFinite && fresh.isFinite
+        ? String(format: "Duck check every 5 s: Δ %+.1f dB", ours - fresh)
+        : "Duck check every 5 s: no signal")
+      oursRow.show(ours)
+      freshRow.show(fresh)
+    } else {
+      show(checkLine, "Duck check every 5 s: pending")
+    }
+    show(uptimeLine, "Up \(duration(now.timeIntervalSince(forwarder.startedAt))) · dropouts \(forwarder.overloads)")
+    show(restartsLine, forwarder.restarts == 0 ? "Restarts 0" : "Restarts \(forwarder.restarts), last: \(forwarder.lastRestart)")
+    show(formatLine, forwarder.formatLines.first ?? "")
+    show(latencyLine, forwarder.formatLines.last ?? "")
+    show(callbacksLine, String(format: "Callbacks %.1f/s · ", callbackRate) + "\((count - forwarder.callbacksAtStart).formatted()) since start")
   }
+}
+
+extension StatusController: NSMenuDelegate {
+  func menuWillOpen(_ menu: NSMenu) {
+    menuOpen = true
+    refresh()
+  }
+
+  func menuDidClose(_ menu: NSMenu) { menuOpen = false }
 }
 
 // MARK: Main
@@ -407,7 +597,7 @@ AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &de
   controller.refresh()
 }
 let supervisor = Timer(timeInterval: 5, repeats: true) { _ in forwarder.tick(checkStall: true) }
-let meter = Timer(timeInterval: 0.1, repeats: true) { _ in controller.refresh() }
+let meter = Timer(timeInterval: 1.0 / 30, repeats: true) { _ in controller.refresh() }
 let duckCheck = Timer(timeInterval: 1, repeats: true) { _ in forwarder.checkDuck() }
 RunLoop.main.add(supervisor, forMode: .common)
 RunLoop.main.add(duckCheck, forMode: .common)
