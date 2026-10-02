@@ -8,8 +8,8 @@
 # them); edit one, then rerun ./dotfiles:
 #   user.js  — prefs; also enables the legacy stylesheets the CSS below needs.
 #   chrome/  — FirefoxNovaFix (https://github.com/MrGoatsy/FirefoxNovaFix) at
-#              aa7bf14d553de721e8ff36bc88eb522cf8e21390, byte-for-byte. It
-#              restores the pre-Nova look; bump by re-downloading both files.
+#              aa7bf14d553de721e8ff36bc88eb522cf8e21390, with a local toolbar
+#              color-scheme override. It restores the pre-Nova look.
 # Idempotent; the first run backs up any pre-existing real file it replaces.
 set -euo pipefail
 

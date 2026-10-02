@@ -361,6 +361,8 @@ toolbarseparator.proton-zap::before {
 }
 
 #nav-bar {
+  /* Follow the theme rather than toolbar brightness detection. */
+  color-scheme: var(--toolbar-color-scheme) !important;
   border-top: none !important;
   background-color: var(--toolbar-background-color) !important;
 }
