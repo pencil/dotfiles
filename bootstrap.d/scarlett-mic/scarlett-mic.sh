@@ -43,6 +43,13 @@ if [[ ! -x "$bin" || "$here/scarlett-mic.swift" -nt "$bin" ]]; then
   # Build beside the target and move into place so a running agent keeps its
   # old inode until it is restarted below.
   xcrun swiftc -O -framework CoreAudio -framework AppKit -o "$bin.tmp" "$here/scarlett-mic.swift"
+  # macOS ties the microphone permission to the code signature, and the agent's
+  # audio waits until the permission dialog is answered. An ad-hoc signature
+  # changes with every build, so each rebuild would ask again; a development
+  # certificate keeps one identity across rebuilds. Without one, stay ad-hoc.
+  identity=$(security find-identity -v -p codesigning 2>/dev/null | awk '/"Apple Development:/ {print $2; exit}')
+  codesign --force --identifier "$label" --sign "${identity:--}" "$bin.tmp" 2>/dev/null ||
+    codesign --force --identifier "$label" --sign - "$bin.tmp"
   mv -f "$bin.tmp" "$bin"
   echo "Built $bin"
   binChanged=1
