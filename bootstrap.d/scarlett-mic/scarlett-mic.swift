@@ -184,12 +184,21 @@ final class Forwarder {
       for buffer in outputs {
         if let data = buffer.mData { memset(data, 0, Int(buffer.mDataByteSize)) }
       }
-      guard inputs.count > inputIndex, outputs.count > outputIndex,
-            let source = inputs[inputIndex].mData, let destination = outputs[outputIndex].mData else { return }
-      let inChannels = Int(inputs[inputIndex].mNumberChannels)
-      let outChannels = Int(outputs[outputIndex].mNumberChannels)
-      let frames = min(Int(inputs[inputIndex].mDataByteSize) / 4 / inChannels,
-                       Int(outputs[outputIndex].mDataByteSize) / 4 / outChannels)
+      // Identify the buffers on every cycle, not once at start. The aggregate
+      // can reorder its streams under a running callback across a sleep/wake or
+      // a device re-enumeration, with no restart to re-read a cached index,
+      // which would leave us reading the cable's own input, a silent loop. The
+      // Scarlett is the input buffer whose channel count is unique among the
+      // members; the cable's output is the member counterpart of the other input.
+      guard inputs.count == 2, outputs.count == 2 else { return }
+      let scarIn = Int(inputs[0].mNumberChannels) == scarlettChannels ? 0 : 1
+      let cableOut = 1 - scarIn
+      guard Int(inputs[scarIn].mNumberChannels) == scarlettChannels,
+            let source = inputs[scarIn].mData, let destination = outputs[cableOut].mData else { return }
+      let inChannels = Int(inputs[scarIn].mNumberChannels)
+      let outChannels = Int(outputs[cableOut].mNumberChannels)
+      let frames = min(Int(inputs[scarIn].mDataByteSize) / 4 / inChannels,
+                       Int(outputs[cableOut].mDataByteSize) / 4 / outChannels)
       let src = source.assumingMemoryBound(to: Float.self)
       let dst = destination.assumingMemoryBound(to: Float.self)
       let mute = self.paused.load(ordering: .relaxed)
