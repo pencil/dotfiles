@@ -112,6 +112,7 @@ final class Forwarder {
   private var ioProc: AudioDeviceIOProcID?
   private var lastCount = 0
   private var announcedWait = false
+  private(set) var missingDeviceNames: [String] = []
   /// Why the forwarder last stopped, so the next successful start counts as a
   /// restart for the menu; nil for the first start.
   private var pendingReason: String?
@@ -131,8 +132,6 @@ final class Forwarder {
     self.outputPrefix = outputPrefix
   }
 
-  var devicesPresent: Bool { device(named: inputPrefix) != nil && device(named: outputPrefix) != nil }
-
   func readPeak() -> Float { Float(bitPattern: peakBits.exchange(0, ordering: .relaxed)) }
 
   func readRMS() -> Float {
@@ -145,9 +144,10 @@ final class Forwarder {
   /// stops when a device vanished. `checkStall` is only true from the periodic
   /// timer, because a tick right after start() would see no callbacks yet.
   func tick(checkStall: Bool) {
+    missingDeviceNames = [inputPrefix, outputPrefix].filter { device(named: $0) == nil }
     if running {
-      if !devicesPresent {
-        log("a device disappeared")
+      if !missingDeviceNames.isEmpty {
+        log("missing \(missingDeviceNames.joined(separator: " and "))")
         pendingReason = "device"
         stop()
         return
@@ -158,10 +158,10 @@ final class Forwarder {
         restart("stall")
       }
       lastCount = count
-    } else if devicesPresent {
+    } else if missingDeviceNames.isEmpty {
       _ = start()
     } else if !announcedWait {
-      log("waiting for \(inputPrefix) and \(outputPrefix)")
+      log("missing \(missingDeviceNames.joined(separator: " and "))")
       announcedWait = true
     }
   }
@@ -530,7 +530,11 @@ final class StatusController: NSObject {
     let text: String
     if !forwarder.running {
       symbol = "mic.badge.xmark"
-      text = "Waiting for \(forwarder.inputPrefix)"
+      if forwarder.missingDeviceNames.isEmpty {
+        text = "Unable to start forwarding"
+      } else {
+        text = "Missing \(forwarder.missingDeviceNames.joined(separator: " and "))"
+      }
     } else if paused {
       symbol = "mic.slash.fill"
       text = "Paused"
