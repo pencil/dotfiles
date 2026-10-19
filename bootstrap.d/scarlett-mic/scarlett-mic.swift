@@ -89,7 +89,12 @@ func device(named prefix: String) -> AudioObjectID? {
 final class Forwarder {
   let inputPrefix: String
   let outputPrefix: String
-  private(set) var running = false
+  private(set) var running = false {
+    didSet {
+      if running != oldValue { onRunningChanged?(running) }
+    }
+  }
+  var onRunningChanged: ((Bool) -> Void)?
   private(set) var inputName = ""
   private(set) var outputName = ""
   let paused = Atomic<Bool>(false)
@@ -277,7 +282,6 @@ final class Forwarder {
     }
     aggregate = agg
     ioProc = proc
-    running = true
     announcedWait = false
     lastCount = callbacks.load(ordering: .relaxed)
 
@@ -306,6 +310,7 @@ final class Forwarder {
       pendingReason = nil
     }
     log("routing \(inputName) channel 1 (input buffer \(inputIndex)) -> \(outputName) (output buffer \(outputIndex))")
+    running = true
     return true
   }
 
@@ -419,6 +424,7 @@ final class MeterRow: NSView {
 
 final class StatusController: NSObject {
   private let forwarder: Forwarder
+  private var meter: Timer?
   private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
   private let statusLine = NSMenuItem(title: "", action: nil, keyEquivalent: "")
   private let peakRow = MeterRow("Peak")
@@ -502,8 +508,21 @@ final class StatusController: NSObject {
     refresh()
   }
 
-  /// Runs 30 times a second, also while the menu is open. The rows only
-  /// redraw while the menu is open.
+  func forwardingStateDidChange(_ running: Bool) {
+    if running {
+      guard meter == nil else { return }
+      let timer = Timer(timeInterval: 1.0 / 30, repeats: true) { [weak self] _ in self?.refresh() }
+      meter = timer
+      RunLoop.main.add(timer, forMode: .common)
+    } else {
+      meter?.invalidate()
+      meter = nil
+    }
+    refresh()
+  }
+
+  /// Runs 30 times a second while forwarding, including while the menu is
+  /// open. The rows only redraw while the menu is open.
   func refresh() {
     let now = Date()
     let dt = Float(min(now.timeIntervalSince(lastTick), 0.5))
@@ -593,31 +612,19 @@ let forwarder = Forwarder(
   outputPrefix: CommandLine.arguments.count > 2 ? CommandLine.arguments[2] : "VB-Cable")
 forwarder.tick(checkStall: false)
 let controller = StatusController(forwarder: forwarder)
-var meter: Timer?
-
-func updateMeterTimer() {
-  if forwarder.running {
-    guard meter == nil else { return }
-    let timer = Timer(timeInterval: 1.0 / 30, repeats: true) { _ in controller.refresh() }
-    meter = timer
-    RunLoop.main.add(timer, forMode: .common)
-  } else {
-    meter?.invalidate()
-    meter = nil
-  }
+forwarder.onRunningChanged = { [weak controller] running in
+  controller?.forwardingStateDidChange(running)
 }
-updateMeterTimer()
+controller.forwardingStateDidChange(forwarder.running)
 
 // A reconnected or removed device is handled within a second; the timer covers stalls.
 var deviceList = address(kAudioHardwarePropertyDevices)
 AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &deviceList, DispatchQueue.main) { _, _ in
   forwarder.tick(checkStall: false)
-  updateMeterTimer()
   controller.refresh()
 }
 let supervisor = Timer(timeInterval: 5, repeats: true) { _ in
   forwarder.tick(checkStall: true)
-  updateMeterTimer()
   controller.refresh()
 }
 let duckCheck = Timer(timeInterval: 1, repeats: true) { _ in forwarder.checkDuck() }
