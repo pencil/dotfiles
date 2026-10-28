@@ -26,7 +26,7 @@ When options don't fit that UI (too many choices, long or open-ended directions,
 - Sub-variants under an option get letters: `1a.`, `1b.`
 - Only nest when an option actually has variants; otherwise stay flat.
 
-In both forms, name actors by role, not by pronoun. "You" and "I" flip meaning depending on who reads the option, so `Who runs Terraform? [ ] You [ ] I` is ambiguous; write `[ ] Agent [ ] Human operator` instead.
+In both forms, name actors by role, not by pronoun. "You" and "I" flip meaning depending on who reads the option, so `Who should Slack the reviewer? [ ] You [ ] I` is ambiguous; write `[ ] Agent [ ] Human operator` instead.
 
 ## Code comments & docs
 
