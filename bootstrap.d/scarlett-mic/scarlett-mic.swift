@@ -117,6 +117,8 @@ final class Forwarder {
   private var ioProc: AudioDeviceIOProcID?
   private var lastCount = 0
   private var announcedWait = false
+  private var startFailures = 0
+  private var nextStartAttempt = Date.distantPast
   private(set) var missingDeviceNames: [String] = []
   /// Why the forwarder last stopped, so the next successful start counts as a
   /// restart for the menu; nil for the first start.
@@ -164,7 +166,7 @@ final class Forwarder {
       }
       lastCount = count
     } else if missingDeviceNames.isEmpty {
-      _ = start()
+      if Date() >= nextStartAttempt { _ = start() }
     } else if !announcedWait {
       log("missing \(missingDeviceNames.joined(separator: " and "))")
       announcedWait = true
@@ -172,6 +174,22 @@ final class Forwarder {
   }
 
   private func start() -> Bool {
+    var succeeded = false
+    defer {
+      if succeeded {
+        startFailures = 0
+        nextStartAttempt = .distantPast
+      } else {
+        startFailures += 1
+        // AudioDeviceStart can keep Core Audio busy for several seconds before
+        // reporting a wedged device. Backoff keeps repeated failures from
+        // monopolizing the audio daemons while the device stack recovers.
+        let delays: [TimeInterval] = [5, 15, 30, 60]
+        let delay = delays[min(startFailures - 1, delays.count - 1)]
+        nextStartAttempt = Date().addingTimeInterval(delay)
+        log("retrying in \(Int(delay)) s")
+      }
+    }
     guard let inputDevice = device(named: inputPrefix), let outputDevice = device(named: outputPrefix) else { return false }
     inputName = string(inputDevice, kAudioObjectPropertyName)
     outputName = string(outputDevice, kAudioObjectPropertyName)
@@ -311,6 +329,7 @@ final class Forwarder {
     }
     log("routing \(inputName) channel 1 (input buffer \(inputIndex)) -> \(outputName) (output buffer \(outputIndex))")
     running = true
+    succeeded = true
     return true
   }
 
@@ -425,6 +444,9 @@ final class MeterRow: NSView {
 final class StatusController: NSObject {
   private let forwarder: Forwarder
   private var meter: Timer?
+  private var meterRate = 0
+  private var statusImages: [String: NSImage] = [:]
+  private var currentSymbol: String?
   private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
   private let statusLine = NSMenuItem(title: "", action: nil, keyEquivalent: "")
   private let peakRow = MeterRow("Peak")
@@ -509,20 +531,37 @@ final class StatusController: NSObject {
   }
 
   func forwardingStateDidChange(_ running: Bool) {
-    if running {
-      guard meter == nil else { return }
-      let timer = Timer(timeInterval: 1.0 / 30, repeats: true) { [weak self] _ in self?.refresh() }
-      meter = timer
-      RunLoop.main.add(timer, forMode: .common)
-    } else {
-      meter?.invalidate()
-      meter = nil
-    }
+    syncMeterTimer(running: running)
     refresh()
   }
 
-  /// Runs 30 times a second while forwarding, including while the menu is
-  /// open. The rows only redraw while the menu is open.
+  private func syncMeterTimer(running: Bool? = nil) {
+    guard running ?? forwarder.running else {
+      meter?.invalidate()
+      meter = nil
+      meterRate = 0
+      return
+    }
+    let rate = menuOpen ? 30 : 5
+    guard meter == nil || meterRate != rate else { return }
+    meter?.invalidate()
+    let timer = Timer(timeInterval: 1.0 / Double(rate), repeats: true) { [weak self] _ in self?.refresh() }
+    timer.tolerance = timer.timeInterval / 10
+    meter = timer
+    meterRate = rate
+    RunLoop.main.add(timer, forMode: .common)
+  }
+
+  private func statusImage(named symbol: String) -> NSImage? {
+    if let image = statusImages[symbol] { return image }
+    let image = NSImage(systemSymbolName: symbol, accessibilityDescription: "Microphone status")
+    statusImages[symbol] = image
+    return image
+  }
+
+  /// Runs at 30 Hz while the menu is open for smooth meters, and 5 Hz while
+  /// closed so the speaking indicator stays responsive without continuously
+  /// driving AppKit at display-like rates.
   func refresh() {
     let now = Date()
     let dt = Float(min(now.timeIntervalSince(lastTick), 0.5))
@@ -561,10 +600,9 @@ final class StatusController: NSObject {
       symbol = now < loudUntil ? "mic.fill" : "mic"
       text = "\(forwarder.inputName) channel 1 → \(forwarder.outputName)"
     }
-    if item.button?.image?.name() != symbol {
-      let image = NSImage(systemSymbolName: symbol, accessibilityDescription: text)
-      image?.setName(symbol)
-      item.button?.image = image
+    if currentSymbol != symbol {
+      currentSymbol = symbol
+      item.button?.image = statusImage(named: symbol)
     }
     guard menuOpen else { return }
 
@@ -596,10 +634,14 @@ final class StatusController: NSObject {
 extension StatusController: NSMenuDelegate {
   func menuWillOpen(_ menu: NSMenu) {
     menuOpen = true
+    syncMeterTimer()
     refresh()
   }
 
-  func menuDidClose(_ menu: NSMenu) { menuOpen = false }
+  func menuDidClose(_ menu: NSMenu) {
+    menuOpen = false
+    syncMeterTimer()
+  }
 }
 
 // MARK: Main
