@@ -28,7 +28,7 @@
 | `templates/` | Reusable source files shared by tool configs; not stowed or auto-sourced |
 | `aider/` | Aider conf and conventions |
 | `antidote/` | `.zsh_plugins.txt` for the zsh plugin manager |
-| `mise/`, `nvm/`, `go/`, `java/`, `ruby/`, `aws/` | Runtime/CLI loaders; mostly `*.zsh` snippets (auto-sourced) |
+| `mise/`, `nvm/`, `go/`, `java/`, `python/`, `ruby/`, `aws/` | Runtime/CLI loaders; mostly `*.zsh` snippets (auto-sourced) |
 | `ag/`, `ack/`, `ctags/` | Search/index tool configs |
 | `macos/` | macOS system defaults script (`.macos`) |
 
