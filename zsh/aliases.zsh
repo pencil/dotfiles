@@ -21,8 +21,8 @@ function arc {
 alias jsonpp='underscore print --color'
 #alias ssh='TERM=xterm-color ssh'
 alias xkcdpass='rl -c 4 /usr/share/dict/words | xargs echo'
-alias http_server='python -m SimpleHTTPServer'
-alias urldecode='python -c "import sys, urllib as ul; \
+alias http_server='python3 -m http.server'
+alias urldecode='python3 -c "import sys, urllib.parse as ul; \
     print(ul.unquote_plus(sys.argv[1]))"'
 
 # attach or create new tmux session
